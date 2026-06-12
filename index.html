@@ -42,13 +42,13 @@
           <p class="eyebrow">Official show hub draft</p>
           <h1>The Michael Berry Show</h1>
           <p class="lede">
-            A cleaner front door for listening live, finding the businesses Michael mentions on air,
-            joining the email list, and shopping the newest official releases.
+            Live radio, show sponsors, email updates, and official gear in one place for
+            Michael Berry listeners.
           </p>
 
           <div class="hero-actions" role="group" aria-label="Primary actions">
             <a class="button primary" href="https://ktrh.iheart.com/featured/michael-berry/" target="_blank" rel="noreferrer">Listen Live</a>
-            <a class="button secondary" href="https://michaelberryshow.com/pages/email-michael-berry" target="_blank" rel="noreferrer">Email Michael</a>
+            <a class="button secondary" href="#sponsors">Browse Sponsors</a>
           </div>
         </div>
 
@@ -60,20 +60,20 @@
 
           <div class="quick-links">
             <a href="https://ktrh.iheart.com/featured/michael-berry/" target="_blank" rel="noreferrer">
-              <span>On Air</span>
-              <strong>KTRH show page</strong>
+              <strong>Listen Live</strong>
+              <span>KTRH show page</span>
             </a>
             <a href="https://www.iheart.com/podcast/44-the-michael-berry-show-27764850/" target="_blank" rel="noreferrer">
-              <span>Podcast</span>
-              <strong>The Michael Berry Show</strong>
+              <strong>Podcast</strong>
+              <span>The Michael Berry Show</span>
             </a>
             <a href="https://michaelberryshow.com/pages/signup-for-michaels-mailing-list" target="_blank" rel="noreferrer">
-              <span>Email List</span>
-              <strong>Join Michael's list</strong>
+              <strong>Email List</strong>
+              <span>Join Michael's list</span>
             </a>
-            <a href="https://ghcf.kimbia.com/themichaelberryfamilyfoundation" target="_blank" rel="noreferrer">
-              <span>Foundation</span>
-              <strong>Donate</strong>
+            <a href="https://michaelberryshow.com/collections/all-merchandise" target="_blank" rel="noreferrer">
+              <strong>Merch Store</strong>
+              <span>Official show gear</span>
             </a>
           </div>
         </div>
@@ -98,19 +98,61 @@
         <div class="directory-shell">
           <form class="search-row" role="search" aria-label="Search sponsors" id="sponsor-search-form">
             <label class="sr-only" for="sponsor-search">Search sponsors</label>
-            <input id="sponsor-search" name="q" type="search" placeholder="Search sponsor name, category, or phone">
+            <input id="sponsor-search" name="q" type="search" placeholder="Search service, sponsor, city, or phone">
             <button type="submit">Search</button>
           </form>
 
-          <p class="result-count" id="sponsor-result-count">Showing featured sponsors</p>
+          <div class="directory-controls" role="group" aria-label="Sponsor filters">
+            <label>
+              <span>State</span>
+              <select id="sponsor-state-filter" name="state">
+                <option value="">All states</option>
+              </select>
+            </label>
 
-          <div class="sponsor-list" id="sponsor-list">
+            <label>
+              <span>Area</span>
+              <select id="sponsor-area-filter" name="area">
+                <option value="">All areas</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Category</span>
+              <select id="sponsor-category-filter" name="category">
+                <option value="">All categories</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Per page</span>
+              <select id="sponsor-page-size" name="page_size">
+                <option value="12">12</option>
+                <option value="24">24</option>
+                <option value="40">40</option>
+                <option value="80">All</option>
+              </select>
+            </label>
+
+            <div class="view-toggle" role="group" aria-label="Directory view">
+              <button type="button" data-view="cards" aria-pressed="true">Cards</button>
+              <button type="button" data-view="list" aria-pressed="false">List</button>
+            </div>
+
+            <button class="clear-filters" type="button" id="sponsor-clear-filters">Clear</button>
+          </div>
+
+          <p class="result-count" id="sponsor-result-count">Loading sponsors</p>
+
+          <div class="sponsor-list card-view" id="sponsor-list">
             <article class="sponsor-loading">
               <span>Loading</span>
               <h3>Fetching sponsors</h3>
               <p>One moment.</p>
             </article>
           </div>
+
+          <nav class="pagination" id="sponsor-pagination" aria-label="Sponsor pages"></nav>
         </div>
       </section>
 

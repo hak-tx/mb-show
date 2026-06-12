@@ -9,11 +9,18 @@ test("directory search and admin shell", async ({ page }) => {
   });
 
   await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
-  await expect(page.locator("#sponsor-list article")).toHaveCount(24);
+  await expect(page.locator("#sponsor-list article")).toHaveCount(12);
+  await expect(page.locator("#sponsor-pagination")).toContainText("Next");
+
+  await page.selectOption("#sponsor-state-filter", "Texas");
+  await expect(page.locator("#sponsor-result-count")).toContainText("Texas");
 
   await page.fill("#sponsor-search", "patio");
   await expect(page.locator("#sponsor-result-count")).toContainText("patio");
   await expect(page.locator("#sponsor-list")).toContainText(/Outdoor|Shade|Tree|Topsoil|Lumber/);
+
+  await page.getByRole("button", { name: "List" }).click();
+  await expect(page.locator("#sponsor-list")).toHaveClass(/list-view/);
 
   await page.fill("#sponsor-search", "hvac houston");
   await expect(page.locator("#sponsor-result-count")).toContainText("hvac houston");
