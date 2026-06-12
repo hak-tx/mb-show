@@ -28,6 +28,7 @@
         <a href="https://ktrh.iheart.com/featured/michael-berry/" target="_blank" rel="noreferrer">Listen</a>
         <a href="#sponsors">Sponsors</a>
         <a href="#merch">Merch</a>
+        <a href="./admin.html">Admin</a>
         <a href="https://michaelberryshow.com/pages/email-michael-berry" target="_blank" rel="noreferrer">Email</a>
         <a href="https://michaelberryshow.com/pages/signup-for-michaels-mailing-list" target="_blank" rel="noreferrer">Email List</a>
       </nav>
@@ -103,54 +104,11 @@
 
           <p class="result-count" id="sponsor-result-count">Showing featured sponsors</p>
 
-          <div class="sponsor-list">
-            <article data-search="Abacus Plumbing Electrical home services plumbing electrical 713-766-3605">
-              <span>Home Services</span>
-              <h3>Abacus Plumbing &amp; Electrical</h3>
-              <p>713-766-3605</p>
-              <a href="https://www.AbacusPlumbing.net" target="_blank" rel="noreferrer">Visit sponsor</a>
-            </article>
-            <article data-search="ABC Home and Commercial Pest Control home services pest 713-730-9500">
-              <span>Home Services</span>
-              <h3>ABC Home and Commercial</h3>
-              <p>713-730-9500</p>
-              <a href="https://www.ABCHomeandCommercial.com" target="_blank" rel="noreferrer">Visit sponsor</a>
-            </article>
-            <article data-search="CarPro auto cars 713-478-0765">
-              <span>Auto</span>
-              <h3>CarPro.com</h3>
-              <p>713-478-0765</p>
-              <a href="https://www.carpro.com/berry" target="_blank" rel="noreferrer">Visit sponsor</a>
-            </article>
-            <article data-search="Gringos Tex-Mex restaurants food">
-              <span>Restaurants</span>
-              <h3>Gringo's Tex-Mex</h3>
-              <p>Official show sponsor</p>
-              <a href="https://www.GringosTexMex.com" target="_blank" rel="noreferrer">Visit sponsor</a>
-            </article>
-            <article data-search="Katz Coffee food drink coffee 713-864-3338">
-              <span>Food &amp; Drink</span>
-              <h3>Katz Coffee</h3>
-              <p>713-864-3338</p>
-              <a href="https://katzcoffee.com" target="_blank" rel="noreferrer">Visit sponsor</a>
-            </article>
-            <article data-search="Republic Boot Co retail boots 832-767-6586">
-              <span>Retail</span>
-              <h3>Republic Boot Co.</h3>
-              <p>832-767-6586</p>
-              <a href="https://www.RepublicBootHouston.com" target="_blank" rel="noreferrer">Visit sponsor</a>
-            </article>
-            <article data-search="Top Gun of Texas guns shooting range 713-779-4867">
-              <span>Outdoors</span>
-              <h3>Top Gun of Texas</h3>
-              <p>713-779-4867</p>
-              <a href="https://www.topgunrange.com" target="_blank" rel="noreferrer">Visit sponsor</a>
-            </article>
-            <article data-search="U.S. Coins Houston Coins collectibles 713-597-6367">
-              <span>Collectibles</span>
-              <h3>U.S. Coins</h3>
-              <p>713-597-6367</p>
-              <a href="https://www.HoustonCoins.com" target="_blank" rel="noreferrer">Visit sponsor</a>
+          <div class="sponsor-list" id="sponsor-list">
+            <article class="sponsor-loading">
+              <span>Loading</span>
+              <h3>Fetching sponsors</h3>
+              <p>One moment.</p>
             </article>
           </div>
         </div>
@@ -203,32 +161,7 @@
       <a href="https://www.instagram.com/michaelberryshow/" target="_blank" rel="noreferrer">Instagram</a>
     </footer>
 
-    <script>
-      const form = document.querySelector("#sponsor-search-form");
-      const input = document.querySelector("#sponsor-search");
-      const cards = Array.from(document.querySelectorAll(".sponsor-list article"));
-      const count = document.querySelector("#sponsor-result-count");
-
-      function updateSponsors() {
-        const query = input.value.trim().toLowerCase();
-        let visible = 0;
-
-        cards.forEach((card) => {
-          const matches = !query || card.dataset.search.toLowerCase().includes(query);
-          card.hidden = !matches;
-          if (matches) visible += 1;
-        });
-
-        count.textContent = query
-          ? `${visible} sponsor${visible === 1 ? "" : "s"} matching "${input.value.trim()}"`
-          : "Showing featured sponsors";
-      }
-
-      input.addEventListener("input", updateSponsors);
-      form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        updateSponsors();
-      });
-    </script>
+    <script src="./config.js"></script>
+    <script src="./scripts/directory-app.js"></script>
   </body>
 </html>

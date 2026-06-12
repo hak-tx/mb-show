@@ -45,6 +45,10 @@ img {
   max-width: 100%;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -416,6 +420,14 @@ h1 {
   color: rgba(255, 255, 255, 0.76);
 }
 
+.sponsor-list .sponsor-meta {
+  min-height: 34px;
+  margin-bottom: 14px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 13px;
+  font-weight: 750;
+}
+
 .sponsor-list a {
   color: var(--white);
   font-weight: 950;
@@ -501,6 +513,111 @@ h1 {
   color: var(--red);
 }
 
+.admin-body {
+  background: #eef2f7;
+}
+
+.admin-main {
+  padding-bottom: 80px;
+}
+
+.admin-panel h1 {
+  margin: 0;
+  color: var(--navy);
+  font-size: clamp(44px, 6vw, 72px);
+  line-height: 0.94;
+}
+
+.admin-auth,
+.sponsor-editor {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-auth label,
+.sponsor-editor label {
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.sponsor-editor {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 24px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.sponsor-editor input,
+.sponsor-editor select,
+.sponsor-editor textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--white);
+  font: inherit;
+}
+
+.sponsor-editor textarea,
+.admin-actions {
+  grid-column: 1 / -1;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-status {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  background: var(--white);
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.admin-table th {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.admin-table button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--white);
+  background: var(--navy);
+  font-weight: 900;
+}
+
 @media (max-width: 1120px) {
   .hero,
   .topbar {
@@ -564,5 +681,9 @@ h1 {
 
   .product-card {
     min-height: auto;
+  }
+
+  .sponsor-editor {
+    grid-template-columns: 1fr;
   }
 }

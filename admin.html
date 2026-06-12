@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>MB Show Sponsor Admin</title>
+    <link rel="stylesheet" href="./styles.css?v=10">
+  </head>
+  <body class="admin-body">
+    <header class="topbar">
+      <a class="logo" href="./index.html">
+        <img
+          src="https://michaelberryshow.com/cdn/shop/files/Official_MB_Show_Logo_2500_x_1800_px.png?v=1682225819&width=500"
+          alt="The Michael Berry Show"
+        >
+      </a>
+      <nav class="primary-nav" aria-label="Primary">
+        <a href="./index.html#sponsors">Directory</a>
+        <a href="https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/" target="_blank" rel="noreferrer">Source List</a>
+      </nav>
+      <button class="cart-button" id="sign-out" type="button" hidden>Sign Out</button>
+    </header>
+
+    <main class="admin-main">
+      <section class="content-band admin-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Sponsor admin</p>
+            <h1>Manage sponsors</h1>
+          </div>
+        </div>
+
+        <form class="admin-auth" id="auth-form">
+          <label for="admin-email">Email</label>
+          <div class="search-row">
+            <input id="admin-email" type="email" autocomplete="email" placeholder="admin@example.com">
+            <button type="submit">Send Link</button>
+          </div>
+          <p class="admin-status" id="admin-status">Supabase connection pending.</p>
+        </form>
+      </section>
+
+      <section class="content-band admin-panel" id="editor-panel" hidden>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Listings</p>
+            <h2>Sponsor records</h2>
+          </div>
+          <button class="text-link" id="new-sponsor" type="button">New Sponsor</button>
+        </div>
+
+        <form class="sponsor-editor" id="sponsor-editor" hidden>
+          <input type="hidden" id="sponsor-id">
+          <label for="sponsor-name">Name</label>
+          <input id="sponsor-name" type="text" required>
+          <label for="sponsor-website">Website</label>
+          <input id="sponsor-website" type="url">
+          <label for="sponsor-phone">Phone</label>
+          <input id="sponsor-phone" type="text">
+          <label for="sponsor-category">Category</label>
+          <input id="sponsor-category" type="text">
+          <label for="sponsor-services">Services</label>
+          <input id="sponsor-services" type="text" placeholder="comma separated">
+          <label for="sponsor-areas">Service areas</label>
+          <input id="sponsor-areas" type="text" placeholder="comma separated">
+          <label for="sponsor-keywords">Admin keywords</label>
+          <input id="sponsor-keywords" type="text" placeholder="comma separated">
+          <label for="sponsor-tier">Tier</label>
+          <select id="sponsor-tier">
+            <option value="standard">standard</option>
+            <option value="featured">featured</option>
+            <option value="premium">premium</option>
+            <option value="exclusive">exclusive</option>
+          </select>
+          <label for="sponsor-rank">Rank boost</label>
+          <input id="sponsor-rank" type="number" value="0">
+          <label for="sponsor-description">Description</label>
+          <textarea id="sponsor-description" rows="4"></textarea>
+          <div class="admin-actions">
+            <button class="button primary" type="submit">Save</button>
+            <button class="button secondary" type="button" id="archive-sponsor">Archive</button>
+          </div>
+        </form>
+
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Tier</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="sponsor-admin-rows"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./config.js"></script>
+    <script src="./scripts/admin-app.js"></script>
+  </body>
+</html>
