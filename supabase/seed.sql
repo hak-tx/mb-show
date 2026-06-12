@@ -18,7 +18,10 @@ insert into public.sponsors (
   source_published_at,
   lookup_status,
   site_title,
-  site_description
+  site_description,
+  premium_tier,
+  premium_rank,
+  is_featured
 ) values
 (
     'abacus-plumbing-and-electrical',
@@ -36,7 +39,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Plumber Houston 713-766-3605 Abacus Plumbing, Air Conditioning & Electrical',
-    'Abacus Plumbing, Air Conditioning & Electrical. Open 24 Hours. Emergency Plumbers, AC and Heating and Electrical Serv...'
+    'Abacus Plumbing, Air Conditioning & Electrical. Open 24 Hours. Emergency Plumbers, AC and Heating and Electrical Serv...',
+    'premium'::public.sponsor_tier,
+    100,
+    true
   ),
 (
     'abc-home-and-commercial-pest-control',
@@ -54,7 +60,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'ABC Pest Control Of Houston | Houston, TX',
-    'ABC Houston is an award winning provider of home and commercial pest control, lawn care, landscaping, pool services and more. Learn how we can help.'
+    'ABC Houston is an award winning provider of home and commercial pest control, lawn care, landscaping, pool services and more. Learn how we can help.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'ability-tree-service',
@@ -72,7 +81,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Arborist in Houston, TX, and Surrounding Areas | Ability Tree Experts LLC',
-    'When you need an arborist in Houston, TX, and surrounding areas, then let Ability Tree Experts LLC come and take care of your landscape. Call us.'
+    'When you need an arborist in Houston, TX, and surrounding areas, then let Ability Tree Experts LLC come and take care of your landscape. Call us.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'ace-hardware-texas',
@@ -90,7 +102,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'ACE',
-    null
+    null,
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'acori-diamonds',
@@ -108,7 +123,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Best Fine Jewelry Store in Friendswood, TX | Acori Diamonds',
-    'Looking for the best fine jewelry in Friendswood, TX? Visit Acori Diamonds for an unmatched selection of rings, necklaces, and more. Shop now and shine today!'
+    'Looking for the best fine jewelry in Friendswood, TX? Visit Acori Diamonds for an unmatched selection of rings, necklaces, and more. Shop now and shine today!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'advanced-hair-restoration',
@@ -126,7 +144,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Advanced Hair Restoration | Hair Transplantation Experts',
-    'Offering state-of-the-art, minimally invasive Advanced FUE® and No-Shave FUE™ hair transplant surgery, yielding incredible results that are guaranteed to grow for life.'
+    'Offering state-of-the-art, minimally invasive Advanced FUE® and No-Shave FUE™ hair transplant surgery, yielding incredible results that are guaranteed to grow for life.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'all-star-construction',
@@ -144,7 +165,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Home Remodeling Company | All Star Construction, Inc.',
-    'Houston’s expert design‑build home remodelers offering kitchen, bath, additions, exteriors & whole‑home renovations with dedicated project managers.'
+    'Houston’s expert design‑build home remodelers offering kitchen, bath, additions, exteriors & whole‑home renovations with dedicated project managers.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'allied-custom-roofing',
@@ -162,7 +186,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Allied Siding & Windows - Replace Your Home Roof - Roof Replacement',
-    'Allied Siding & Windows - Home Roof Replacement. Looking for a local roofing company? Roofing contractor that provides roof replacement.'
+    'Allied Siding & Windows - Home Roof Replacement. Looking for a local roofing company? Roofing contractor that provides roof replacement.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'allied-outdoor-solutions',
@@ -180,7 +207,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Outdoor Living Design & Contractor | Allied Outdoor Solutions',
-    'Get the best in Texas outdoor living from Allied Outdoor Solutions. Contact us for a free design, install and build consultation today.'
+    'Get the best in Texas outdoor living from Allied Outdoor Solutions. Contact us for a free design, install and build consultation today.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'allied-siding-and-windows',
@@ -198,7 +228,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Home Windows | Replacement Windows & Siding Houston Dallas',
-    'Home window replacement and siding installation from one of the best window and door replacement companies in Houston, Dallas, Austin Texas.'
+    'Home window replacement and siding installation from one of the best window and door replacement companies in Houston, Dallas, Austin Texas.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'american-truss-components',
@@ -216,7 +249,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'American Truss Components',
-    null
+    null,
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'atlas-foundation-repair',
@@ -234,7 +270,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Residential & Commercial Foundation Repair in Houston, TX - Atlas Foundation Repair',
-    'Get a one stop solution for reliable residential or commercial repair services with Atlas Foundation Repair. 100% customer satisfaction at great prices!'
+    'Get a one stop solution for reliable residential or commercial repair services with Atlas Foundation Repair. 100% customer satisfaction at great prices!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'byrna-less-lethal-launchers',
@@ -252,7 +291,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Byrna | Best Non Lethal Self-Defense Products',
-    'One of the best defense products available is the Byrna SD, a legal, non-lethal self-defense weapon that fires pepper filled rounds up to 60 feet using CO2. Save lives without the risk of taking one. Empower yourself today!'
+    'One of the best defense products available is the Byrna SD, a legal, non-lethal self-defense weapon that fires pepper filled rounds up to 60 feet using CO2. Save lives without the risk of taking one. Empower yourself today!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'brookway-landscape-and-irrigation',
@@ -270,7 +312,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Houston, TX&#039;s Choice Among Area Commercial Landscaping Companies',
-    'As your trusted local source among commercial landscaping companies, we have the turn-key solution for ALL your landscaping design, install & maintenance needs in Houston, TX since 1998!'
+    'As your trusted local source among commercial landscaping companies, we have the turn-key solution for ALL your landscaping design, install & maintenance needs in Houston, TX since 1998!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'carpro-com',
@@ -288,7 +333,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Buy a Car. Sell a Car. Car Buying Resources and Reviews | CarPro',
-    'Buy your next car from a local certified dealer. Sell your car for payment on the spot. Read car reviews, news, and buying and selling tips. Learn more!'
+    'Buy your next car from a local certified dealer. Sell your car for payment on the spot. Read car reviews, news, and buying and selling tips. Learn more!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'certapro-painters',
@@ -306,7 +354,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Central & Northeast Houston House Painters - Best Painting Services Company',
-    'CertaPro Painters® of Central & Northeast Houston, TX provides superior house & commercial painting services. Call us or go online today to schedule a FREE painting estimate!'
+    'CertaPro Painters® of Central & Northeast Houston, TX provides superior house & commercial painting services. Call us or go online today to schedule a FREE painting estimate!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'chad-t-wilson-law-firm',
@@ -324,7 +375,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Property Damage Insurance Attorneys | Denied Insurance Claims',
-    'Was your property damage claim denied? Our property damage insurance attorneys help homeowners and businesses obtain the insurance settlements they deserve. Reach out to us today!'
+    'Was your property damage claim denied? Our property damage insurance attorneys help homeowners and businesses obtain the insurance settlements they deserve. Reach out to us today!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'cowboy-topsoil',
@@ -342,7 +396,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Cowboy Trucking Inc.',
-    null
+    null,
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'daniel-dean-land-clearing-and-dirt-work',
@@ -360,7 +417,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Land Clearing and Dirt Work | Daniel Dean',
-    'For professional residential and commercial land clearing and dirt work around Houston, Daniel Dean does it all: driveways, ponds, drainage.'
+    'For professional residential and commercial land clearing and dirt work around Houston, Daniel Dean does it all: driveways, ponds, drainage.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'dean-and-draper-insurance',
@@ -378,7 +438,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Houston Based Insurance Broker | Dean & Draper',
-    'Dean & Draper is a Houston-based insurance broker offering tailored commercial & personal insurance, employee benefits, and risk management solutions.'
+    'Dean & Draper is a Houston-based insurance broker offering tailored commercial & personal insurance, employee benefits, and risk management solutions.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'design-tech-homes',
@@ -396,7 +459,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Houston Custom Home Builder | Build On Your Lot | DTH',
-    'Looking for a new home builder in Houston? Design Tech Homes builds custom, energy-efficient homes on your lot with a 20-year structural warranty.'
+    'Looking for a new home builder in Houston? Design Tech Homes builds custom, energy-efficient homes on your lot with a 20-year structural warranty.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'desroches-partners-cpa',
@@ -414,7 +480,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Desroches | We Create Partnerships of Trust From Which Everyone Prospers',
-    null
+    null,
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'dr-john-cottingham-mdvip-concierge-primary-doctor',
@@ -432,7 +501,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Dr. John Cottingham, MD - Family Medicine Doctor - Beyond Concierge Medicine in Webster TX - MDVIP',
-    'Learn more about Dr. John Cottingham, MD, Family Medicine doctor in Webster TX and how their MDVIP practice can provide you fully personalized primary care.'
+    'Learn more about Dr. John Cottingham, MD, Family Medicine doctor in Webster TX and how their MDVIP practice can provide you fully personalized primary care.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'dr-whitsett-eye-surgeon',
@@ -450,7 +522,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Ophthalmologists in Houston | Whitsett Vision Group',
-    'At Whitsett Vision Group, we assist with all of the eye care needs of the Houston, TX community. Call 713-365-9099 to schedule an eye exam today!'
+    'At Whitsett Vision Group, we assist with all of the eye care needs of the Houston, TX community. Call 713-365-9099 to schedule an eye exam today!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'dunn-fence',
@@ -468,7 +543,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Houston Fence Company - Dunn Fence Company',
-    'Looking for a reliable fence builder near you? Dunn Fence is the Houston fence company homeowners and businesses trust for high-quality fencing, gates, and'
+    'Looking for a reliable fence builder near you? Dunn Fence is the Houston fence company homeowners and businesses trust for high-quality fencing, gates, and',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'estates-of-texas-grand-ranch',
@@ -486,7 +564,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Lots for Sale in Texas | The Estates of Texas Grand Ranch',
-    'Our lots for sale in Texas are selling at an unprecedented pace. Come see why! Live large and love your commute with premium homesites at Texas Grand Ranch.'
+    'Our lots for sale in Texas are selling at an unprecedented pace. Come see why! Live large and love your commute with premium homesites at Texas Grand Ranch.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'federal-american-grill',
@@ -504,7 +585,10 @@ insert into public.sponsors (
     '2026-03-27',
     'http_403',
     'Just a moment...',
-    null
+    null,
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'fix-auto-houston',
@@ -522,7 +606,10 @@ insert into public.sponsors (
     '2026-03-27',
     'http_404',
     'Fix Auto USA',
-    'Fix Auto USA'
+    'Fix Auto USA',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'flahertys-flooring-america',
@@ -540,7 +627,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Flooring Store in Cypress and The Woodlands, TX | Flaherty&#39;s Flooring America',
-    'Got a big flooring project in mind? No problem. Flaherty&#39;s Flooring America serves the Cy-Fair area with high-quality tile, vinyl, hardwood, carpet, and more.'
+    'Got a big flooring project in mind? No problem. Flaherty&#39;s Flooring America serves the Cy-Fair area with high-quality tile, vinyl, hardwood, carpet, and more.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'garage-door-doctor-biz',
@@ -558,7 +648,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'BEST Houston Garage Door Repair Near You - Garage Door Repair Houston - Garage Door Doctor',
-    'Need emergency garage door repair in Houston? From garage door installation and replacement to fixing garage door openers, we provide fast, reliable garage repair.'
+    'Need emergency garage door repair in Houston? From garage door installation and replacement to fixing garage door openers, we provide fast, reliable garage repair.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'generator-supercenter-inc',
@@ -576,7 +669,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Homepage 2026 | Generator Supercenter | Generators Sales, Install and Maintenance',
-    'Whole House Generator Installation, Service and Maintenance. Choose the #1 Generac Dealer in America. Contact Us Today at 866-516-7199. Never get left in the dark again...'
+    'Whole House Generator Installation, Service and Maintenance. Choose the #1 Generac Dealer in America. Contact Us Today at 866-516-7199. Never get left in the dark again...',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'golden-nugget-lake-charles',
@@ -594,7 +690,10 @@ insert into public.sponsors (
     '2026-03-27',
     'http_403',
     'Just a moment...',
-    null
+    null,
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'greater-houston-radiation-oncology-dr-kirk-kanady',
@@ -612,7 +711,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Now Offering Telehealth Appointments | Greater Houston Radiation Oncology: Radiation Oncologists: North Houston, South Houston & Huntsville, TX',
-    'Now offering virtual visits - Book online today! Trusted Radiation Oncologists serving North Houston, South Houston & Huntsville, TX. Visit our website to book an appointment online: Greater Houston Radiation Oncology'
+    'Now offering virtual visits - Book online today! Trusted Radiation Oncologists serving North Houston, South Houston & Huntsville, TX. Visit our website to book an appointment online: Greater Houston Radiation Oncology',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'gringo-s-tex-mex',
@@ -630,7 +732,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Your Hometown Tex-Mex | Gringo’s Mexican Kitchen',
-    'Gringo&#039;s Mexican Kitchen specializes in serving up the best fresh, authentic Tex-Mex food in Houston, Spring, Cypress, Fuqua, Katy, La Porte, New Caney, Pearland, Rosenberg, Stafford, Sugar Land, Texas City and The Woodlands.'
+    'Gringo&#039;s Mexican Kitchen specializes in serving up the best fresh, authentic Tex-Mex food in Houston, Spring, Cypress, Fuqua, Katy, La Porte, New Caney, Pearland, Rosenberg, Stafford, Sugar Land, Texas City and The Woodlands.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'dr-guy-lewis-and-the-texas-center-for-cosmetic-dentistry',
@@ -648,7 +753,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Houston, TX Cosmetic Dentist | Dr. Guy M. Lewis',
-    'Discover the smile of your dreams with Dr. Guy M. Lewis, cosmetic dentist in Houston, TX. Start your journey today with porcelain veneers or a smile makeover!'
+    'Discover the smile of your dreams with Dr. Guy M. Lewis, cosmetic dentist in Houston, TX. Start your journey today with porcelain veneers or a smile makeover!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'hawthorne-capital',
@@ -666,7 +774,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Hawthorne Capital &#8211; Predictable passive income backed by Texas land',
-    null
+    null,
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'heritage-legacy-films',
@@ -684,7 +795,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Heritage Films | Legacy Documentary Film | Houston, TX',
-    'We transform your unique memories and life experiences into a cinematic masterpiece. Your personal legacy, exquisitely produced to resonate across generations.'
+    'We transform your unique memories and life experiences into a cinematic masterpiece. Your personal legacy, exquisitely produced to resonate across generations.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'hometown-hero-cbd',
@@ -702,7 +816,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Hometown Hero CBD - Premium Cannabis Products',
-    'From our hometown of Austin TX, we offer quality cannabis goods to improve the way people feel, while giving back to our communities. We handcraft our cannabis goods with uncompromising safety and consistency, and superior taste.'
+    'From our hometown of Austin TX, we offer quality cannabis goods to improve the way people feel, while giving back to our communities. We handcraft our cannabis goods with uncompromising safety and consistency, and superior taste.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'houston-motorsports',
@@ -720,7 +837,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Houston Motorsports - New & Used Powersports Vehicles, Service, and Parts with 4 locations around Texas',
-    'Houston Motorsports, featuring Powersports Vehicles for sale, parts, and service with locations in Texas City, Webster, Houston, and Pasadena, TX.'
+    'Houston Motorsports, featuring Powersports Vehicles for sale, parts, and service with locations in Texas City, Webster, Houston, and Pasadena, TX.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'houston-powder-coaters',
@@ -738,7 +858,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Home - Houston Powder Coaters - Powder Coating Specialists',
-    null
+    null,
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'houston-tents-and-events',
@@ -756,7 +879,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Home - Houston Tents & Events',
-    'Get high-quality, reliable tent rental services in Houston. From small gatherings to large events, Houston Tents & Events has you covered.'
+    'Get high-quality, reliable tent rental services in Houston. From small gatherings to large events, Houston Tents & Events has you covered.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'jimmy-changas',
@@ -774,7 +900,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Jimmy Changas | Fresh. Mex. Fun.',
-    'Jimmy Changas has 4 locations: Katy, League City, Pearland and Pasadena TX.'
+    'Jimmy Changas has 4 locations: Katy, League City, Pearland and Pasadena TX.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'katz-coffee',
@@ -792,7 +921,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Katz Coffee - Incredible Coffee & Quality Service',
-    'Incredible Coffee & Quality Service in Texas! Katz Coffee is a premium roasting company that offers a wide range of coffees.'
+    'Incredible Coffee & Quality Service in Texas! Katz Coffee is a premium roasting company that offers a wide range of coffees.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'kristyn-weaver-law-firm-wills-estate-planning',
@@ -810,7 +942,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Kristyn Weaver Law Firm',
-    null
+    null,
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'kronbergs-flags-and-flagpoles',
@@ -828,7 +963,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Kronbergs Flags and Flagpoles | American Made Flags',
-    'Kronbergs Flags and Flagpoles offer high quality made in the USA flags and flagpoles. From American and Texas flags to historic flags, we offer a wide selection of flags.'
+    'Kronbergs Flags and Flagpoles offer high quality made in the USA flags and flagpoles. From American and Texas flags to historic flags, we offer a wide selection of flags.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'la-boucherie-cajun-meats',
@@ -846,7 +984,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Cajun Meats & Sides Ready for the Grill or Oven | La Boucherie',
-    'Our gourmet-quality stuffed meats and side dishes can be found at our Butcher Shop, in grocery stores and markets across the South, or conveniently online.'
+    'Our gourmet-quality stuffed meats and side dishes can be found at our Butcher Shop, in grocery stores and markets across the South, or conveniently online.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'lamont-brands-promotional-products',
@@ -864,7 +1005,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Lamont Brands - Embroidery, Screen Printing, Engraving, Promo & PPE',
-    'Lamont Brands is a Service Disabled Veteran Owned Small Business in Houston that supplies branded custom apparel, promotional products, engraving and PPE.'
+    'Lamont Brands is a Service Disabled Veteran Owned Small Business in Houston that supplies branded custom apparel, promotional products, engraving and PPE.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'lone-star-chevy-mike-baches-gm',
@@ -882,7 +1026,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Houston''s Lone Star Chevrolet | New & Used Chevy Dealership',
-    'Shop Chevy deals in Houston at the legendary Lone Star Chevrolet. Stop by to experience the customer service that'
+    'Shop Chevy deals in Houston at the legendary Lone Star Chevrolet. Stop by to experience the customer service that',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'mainstreet-wealth-management-stifel',
@@ -900,7 +1047,10 @@ insert into public.sponsors (
     '2026-03-27',
     'http_403',
     'Attention Required! | Cloudflare',
-    null
+    null,
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'mccauley-lumber',
@@ -918,7 +1068,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'McCauley Lumber &#8211; Complete Line Of Building Materials',
-    null
+    null,
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'memorial-hearing',
@@ -936,7 +1089,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Home - memorialhearing.com',
-    'Memorial Hearing of Houston Houston&#039;s Trusted Hearing Aid and Tinnitus Experts SCHEDULE AN APPOINTMENT Comprehensive Hearing and Tinnitus Solutions Tailored to You At Memorial Hearing, located in Houston, we provide personalized hearing care to help you experience life with clear, comfortable sound. Whether you need a hearing evaluation, advanced hearing aids, or device repairs, our'
+    'Memorial Hearing of Houston Houston&#039;s Trusted Hearing Aid and Tinnitus Experts SCHEDULE AN APPOINTMENT Comprehensive Hearing and Tinnitus Solutions Tailored to You At Memorial Hearing, located in Houston, we provide personalized hearing care to help you experience life with clear, comfortable sound. Whether you need a hearing evaluation, advanced hearing aids, or device repairs, our',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'mueller-inc',
@@ -954,7 +1110,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Steel & Metal Buildings | Pre-Engineered Metal Buildings - Mueller, Inc',
-    'Mueller, Inc. has served the southwest with high quality steel &, metal buildings, metal roofing, and components for over a quarter of a century. We have locations in Texas, New Mexico, Oklahoma, and Louisiana, so contact us for pre-engineered metal buildings.'
+    'Mueller, Inc. has served the southwest with high quality steel &, metal buildings, metal roofing, and components for over a quarter of a century. We have locations in Texas, New Mexico, Oklahoma, and Louisiana, so contact us for pre-engineered metal buildings.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'muscle-cars-of-texas',
@@ -972,7 +1131,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Classic Muscle Car Restoration | Texas Muscle Cars | Houston, TX',
-    'Texas Muscle Cars specializes in classic muscle car restorations & restomods. Contact us for expert detailing & body work today!'
+    'Texas Muscle Cars specializes in classic muscle car restorations & restomods. Contact us for expert detailing & body work today!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'northwind-air-conditioning',
@@ -990,7 +1152,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'HVAC Services in West Houston & Northwest Houston, TX',
-    'HVAC Services in West Houston & Northwest Houston, TX done with the expert team at Northwind Air Conditioning, Heating, and Mechanical today!'
+    'HVAC Services in West Houston & Northwest Houston, TX done with the expert team at Northwind Air Conditioning, Heating, and Mechanical today!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'oops-steam-cleaning',
@@ -1008,7 +1173,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Professional Carpet Cleaning Houston | Steam Cleaning Experts',
-    'Looking for carpet cleaning in Houston? We offer expert carpet, tile & grout, and upholstery cleaning. Fast, reliable service. Get your free quote today!'
+    'Looking for carpet cleaning in Houston? We offer expert carpet, tile & grout, and upholstery cleaning. Fast, reliable service. Get your free quote today!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'percento-technologies',
@@ -1026,7 +1194,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Managed IT Services Houston | IT Support & Service',
-    'Managed IT Services involve outsourcing IT tasks to improve operational efficiency, security, allowing business to focus on core activities.'
+    'Managed IT Services involve outsourcing IT tasks to improve operational efficiency, security, allowing business to focus on core activities.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'petru-in-home-fitness',
@@ -1044,7 +1215,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Personal Trainer Weight Loss | Petru In-Home Fitness | United States',
-    'In-home personal fitness training and nutrition consulting in the privacy of your home.'
+    'In-home personal fitness training and nutrition consulting in the privacy of your home.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'qc-kinetix',
@@ -1062,7 +1236,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Find Regenerative Medicine at a QC Kinetix Location Near You',
-    'Locate your nearest QC Kinetix clinic offering non-surgical regenerative therapies. Find a location and book a free consultation now.'
+    'Locate your nearest QC Kinetix clinic offering non-surgical regenerative therapies. Find a location and book a free consultation now.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'redstone-payment-solutions-credit-card-processing',
@@ -1080,7 +1257,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Redstone Payment Solutions | Secure Merchant Services & Clover® POS Systems',
-    'Redstone Payment Solutions provides reliable merchant services to help your business succeed. From credit card processing to Clover® POS systems, we deliver secure, tailored solutions. Let us simplify your payments so you can focus on what matters most.'
+    'Redstone Payment Solutions provides reliable merchant services to help your business succeed. From credit card processing to Clover® POS systems, we deliver secure, tailored solutions. Let us simplify your payments so you can focus on what matters most.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'republic-boot-co',
@@ -1098,7 +1278,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Republic Boot Co. - Texas Custom Cowboy Boots - Legendary Houston!',
-    'Handmade Custom Cowboy Boots & Master Craftsmanship. The Leader in Custom Cowboy Boots and Custom Leather Products. Boot & Shoe Repairs. The cultural gem in Houston Texas.'
+    'Handmade Custom Cowboy Boots & Master Craftsmanship. The Leader in Custom Cowboy Boots and Custom Leather Products. Boot & Shoe Repairs. The cultural gem in Houston Texas.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'republic-grand-ranch',
@@ -1116,7 +1299,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'High Elevation Land for Sale in Texas | Republic Grand Ranch',
-    'Get high elevation land for sale in Texas at pre-development prices. Acreage homesites are now available from $79,900.'
+    'Get high elevation land for sale in Texas at pre-development prices. Acreage homesites are now available from $79,900.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'rick-doak-compass-lifestyle-ranch-and-home-group',
@@ -1134,7 +1320,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'South Central Texas Ranch & Acreage Real Estate | Lifestyle Ranch & Home Group',
-    'Luxury ranches, acreage homes & custom builds in South Central Texas. Trusted local experts serving Washington County, Brenham & Chappell Hill.'
+    'Luxury ranches, acreage homes & custom builds in South Central Texas. Trusted local experts serving Washington County, Brenham & Chappell Hill.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'senior-health-services-help-with-medicare',
@@ -1152,7 +1341,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Senior Health Services | No-Cost Medicare Help in Texas',
-    'Senior Health Services offers the best medicare help in Texas. Our services are at no cost to you! We have the medicare answers that you need.'
+    'Senior Health Services offers the best medicare help in Texas. Our services are at no cost to you! We have the medicare answers that you need.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'shade-doctor',
@@ -1170,7 +1362,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Shade Doctor: #1 for Motorized Shades & Outdoor Solutions',
-    'Enhance your outdoor space with Shade Doctor'
+    'Enhance your outdoor space with Shade Doctor',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'shoppa-s-john-deere',
@@ -1188,7 +1383,10 @@ insert into public.sponsors (
     '2026-03-27',
     'http_429',
     'Vercel Security Checkpoint',
-    null
+    null,
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'southern-front-door',
@@ -1206,7 +1404,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Houston Front Doors | Iron, Fiberglass, Wood Replacement Doors',
-    'Looking for exterior entry doors for your Houston home? Southern Front Door has a wide selection of Iron, Fiberglass, Wood Replacement Doors.'
+    'Looking for exterior entry doors for your Houston home? Southern Front Door has a wide selection of Iron, Fiberglass, Wood Replacement Doors.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'sparx-engineering',
@@ -1224,7 +1425,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Sparx Engineering - Hardware, Software & Product Development',
-    'Sparx has years of experience designing for industrial, military, consumer, aerospace, and medical environments.'
+    'Sparx has years of experience designing for industrial, military, consumer, aerospace, and medical environments.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'spec-s-wine-liquor-and-finer-foods',
@@ -1242,7 +1446,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Liquor Store & Alcohol Delivery - Spec’s Wines, Spirits & Foods',
-    'Get Lower Prices on Texas’ Largest Selection of Wine, Spirits, & Finer Foods. Experience the #1 Liquor Store & Alcohol Delivery in Texas!'
+    'Get Lower Prices on Texas’ Largest Selection of Wine, Spirits, & Finer Foods. Experience the #1 Liquor Store & Alcohol Delivery in Texas!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'sunflower-floor-coatings',
@@ -1260,7 +1467,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Sunflower Floor Coatings Concrete Flooring | Polyaspartic One Day System',
-    'Sunflower Floor Coatings concrete floor coating systems are stronger than epoxy and can be installed in one day. Learn more and get your free estimate today!'
+    'Sunflower Floor Coatings concrete floor coating systems are stronger than epoxy and can be installed in one day. Learn more and get your free estimate today!',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'synergenx-testosterone',
@@ -1278,7 +1488,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'SynergenX Health | Testosterone and Weight Loss',
-    'We specialize in transforming men&#039;s and women&#039;s health through Testosterone Replacement Therapy (TRT), Hormone Replacement Therapy, and Weight Loss. Start Today.'
+    'We specialize in transforming men&#039;s and women&#039;s health through Testosterone Replacement Therapy (TRT), Hormone Replacement Therapy, and Weight Loss. Start Today.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'techstar',
@@ -1296,7 +1509,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'TechStar',
-    null
+    null,
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'texasrenters-com',
@@ -1314,7 +1530,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Home - Texas Renters',
-    'No hidden fees. No surprise maintenance bills. No stress from managing tenants—just reliable, full-service management for one simple flat monthly fee.'
+    'No hidden fees. No surprise maintenance bills. No stress from managing tenants—just reliable, full-service management for one simple flat monthly fee.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'texas-state-rentals',
@@ -1332,7 +1551,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Texas State Rentals - Premier Heavy Equipment and Tools Rental in Texas',
-    'Discover top-quality heavy equipment rentals for your projects. Learn more! Serving all of Texas.'
+    'Discover top-quality heavy equipment rentals for your projects. Learn more! Serving all of Texas.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'the-pipe-yard-inc',
@@ -1350,7 +1572,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Pipe Yard Incorporated',
-    'Pipe Yard Incorporated'
+    'Pipe Yard Incorporated',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'top-gun-of-texas-gun-sales-and-shooting-range',
@@ -1368,7 +1593,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Indoor Gun Range Houston | Top Gun Range | Shooting & LTC Classes',
-    'Visit Top Gun Range, the premier indoor gun range in Houston. Experience the best shooting range in Houston with gun rentals, LTC classes, expert firearm training, and more.'
+    'Visit Top Gun Range, the premier indoor gun range in Houston. Experience the best shooting range in Houston with gun rentals, LTC classes, expert firearm training, and more.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'top-tax-defenders',
@@ -1386,7 +1614,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'IRS Tax Resolution Services & Help | Top Tax Defenders',
-    'Top Tax Defenders in Houston, Texas offers expert IRS tax resolution services to help you resolve tax issues, such as liens, audits and tax debts quickly.'
+    'Top Tax Defenders in Houston, Texas offers expert IRS tax resolution services to help you resolve tax issues, such as liens, audits and tax debts quickly.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'trailer-wheel-and-frame',
@@ -1404,7 +1635,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Trailer Wheel & Frame | trailer sales | 8222 North Freeway, Houston, TX, USA',
-    'Trailer Wheel & Frame is Your Trailer HQ Since'
+    'Trailer Wheel & Frame is Your Trailer HQ Since',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'trane-u-s-inc',
@@ -1422,7 +1656,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Residential Trane HVAC Solutions in the Greater Houston Area',
-    'Houston Trane is the authorized Trane distributor for the Greater Houston area and Southeast Texas, supporting residential, commercial, and industrial HVAC systems with local expertise and trusted partners.'
+    'Houston Trane is the authorized Trane distributor for the Greater Houston area and Southeast Texas, supporting residential, commercial, and industrial HVAC systems with local expertise and trusted partners.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'u-s-coins',
@@ -1440,7 +1677,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Buy & Sell Coins, Bullion, Watches - U.S. Coins and Jewelry',
-    'U.S. Coins and Jewelry is Houston&#39;s leading source for buying and selling coins, gold, silver, bullion, luxury watches & more. Get appraised in-store or online.'
+    'U.S. Coins and Jewelry is Houston&#39;s leading source for buying and selling coins, gold, silver, bullion, luxury watches & more. Get appraised in-store or online.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   ),
 (
     'uptown-appliance-repair',
@@ -1458,7 +1698,10 @@ insert into public.sponsors (
     '2026-03-27',
     'ok',
     'Home - Uptown Appliance Repair',
-    'Uptown Appliance Repair - Your local, trusted source for reliable appliance repair services, whether you&#039;re in Houston or Dallas.'
+    'Uptown Appliance Repair - Your local, trusted source for reliable appliance repair services, whether you&#039;re in Houston or Dallas.',
+    'standard'::public.sponsor_tier,
+    0,
+    false
   )
 on conflict (slug) do update set
   name = excluded.name,
@@ -1476,5 +1719,8 @@ on conflict (slug) do update set
   lookup_status = excluded.lookup_status,
   site_title = excluded.site_title,
   site_description = excluded.site_description,
+  premium_tier = excluded.premium_tier,
+  premium_rank = excluded.premium_rank,
+  is_featured = excluded.is_featured,
   imported_at = now(),
   updated_at = now();

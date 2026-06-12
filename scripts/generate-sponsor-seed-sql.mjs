@@ -24,6 +24,7 @@ function slugify(value) {
 const data = JSON.parse(await readFile(dataPath, "utf8"));
 const rows = data.sponsors.map((sponsor) => {
   const slug = slugify(sponsor.name);
+  const isPremiumDemo = slug === "abacus-plumbing-and-electrical";
   return `(
     ${sqlString(slug)},
     ${sqlString(sponsor.name)},
@@ -40,7 +41,10 @@ const rows = data.sponsors.map((sponsor) => {
     ${sqlString(sponsor.source_published_at)},
     ${sqlString(sponsor.lookup?.lookup_status || "not_checked")},
     ${sqlString(sponsor.lookup?.site_title || "")},
-    ${sqlString(sponsor.lookup?.site_description || "")}
+    ${sqlString(sponsor.lookup?.site_description || "")},
+    ${sqlString(isPremiumDemo ? "premium" : "standard")}::public.sponsor_tier,
+    ${isPremiumDemo ? 100 : 0},
+    ${isPremiumDemo ? "true" : "false"}
   )`;
 });
 
@@ -64,7 +68,10 @@ insert into public.sponsors (
   source_published_at,
   lookup_status,
   site_title,
-  site_description
+  site_description,
+  premium_tier,
+  premium_rank,
+  is_featured
 ) values
 ${rows.join(",\n")}
 on conflict (slug) do update set
@@ -83,6 +90,9 @@ on conflict (slug) do update set
   lookup_status = excluded.lookup_status,
   site_title = excluded.site_title,
   site_description = excluded.site_description,
+  premium_tier = excluded.premium_tier,
+  premium_rank = excluded.premium_rank,
+  is_featured = excluded.is_featured,
   imported_at = now(),
   updated_at = now();
 `;

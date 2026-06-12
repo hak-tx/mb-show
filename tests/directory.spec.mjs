@@ -17,7 +17,10 @@ test("directory search and admin shell", async ({ page }) => {
 
   await page.fill("#sponsor-search", "patio");
   await expect(page.locator("#sponsor-result-count")).toContainText("patio");
+  await expect(page.locator("#sponsor-result-count")).toContainText("Showing all");
+  await expect(page.locator("#sponsor-pagination")).toBeEmpty();
   await expect(page.locator("#sponsor-list")).toContainText(/Outdoor|Shade|Tree|Topsoil|Lumber/);
+  await expect(page.locator("#sponsor-list")).not.toContainText("Abacus Plumbing & Electrical");
 
   await page.getByRole("button", { name: "List" }).click();
   await expect(page.locator("#sponsor-list")).toHaveClass(/list-view/);
@@ -25,6 +28,8 @@ test("directory search and admin shell", async ({ page }) => {
   await page.fill("#sponsor-search", "hvac houston");
   await expect(page.locator("#sponsor-result-count")).toContainText("hvac houston");
   await expect(page.locator("#sponsor-list")).toContainText(/Northwind|Trane|Uptown|Abacus|Techstar/);
+  await expect(page.locator("#sponsor-list article").first()).toContainText("Abacus Plumbing & Electrical");
+  await expect(page.locator("#sponsor-list article").first()).toContainText("premium listing");
 
   await page.goto(`${baseUrl}/admin.html`, { waitUntil: "networkidle" });
   await expect(page.locator("#admin-status")).toContainText("Supabase connection pending");

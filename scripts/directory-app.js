@@ -76,6 +76,7 @@
   function normalizeSponsor(sponsor) {
     const serviceAreas = normalizeArray(sponsor.service_areas);
     const explicitStates = normalizeArray(sponsor.states);
+    const isAbacusDemo = slugify(sponsor.name) === "abacus-plumbing-and-electrical";
     const derivedStates = serviceAreas
       .map((area) => stateAreaMap[String(area).toLowerCase()])
       .filter(Boolean);
@@ -95,9 +96,14 @@
       states,
       keywords: normalizeArray(sponsor.keywords),
       admin_keywords: normalizeArray(sponsor.admin_keywords),
-      premium_tier: sponsor.premium_tier || "standard",
-      is_featured: Boolean(sponsor.is_featured),
+      premium_tier: isAbacusDemo ? "premium" : sponsor.premium_tier || "standard",
+      premium_rank: isAbacusDemo ? 100 : Number(sponsor.premium_rank || 0),
+      is_featured: Boolean(sponsor.is_featured || isAbacusDemo),
     };
+  }
+
+  function directQueryTerms(query) {
+    return unique(query.split(/\s+/).map((term) => term.trim()).filter(Boolean));
   }
 
   function expandQuery(query) {
@@ -108,9 +114,12 @@
     return unique([...query.split(/\s+/), ...extra].map((term) => term.trim()).filter(Boolean));
   }
 
-  function scoreSponsor(sponsor, terms) {
-    if (!terms.length) return 0;
+  function premiumWeight(sponsor) {
+    const tierWeight = { exclusive: 4, premium: 3, featured: 1.75, standard: 0 }[sponsor.premium_tier || "standard"] || 0;
+    return tierWeight + (sponsor.is_featured ? 1 : 0) + Math.max(Number(sponsor.premium_rank || 0), 0) * 0.01;
+  }
 
+  function scoreSponsor(sponsor, terms, directTerms) {
     const text = [
       sponsor.name,
       sponsor.category,
@@ -128,8 +137,11 @@
     const sponsorName = String(sponsor.name || "").toLowerCase();
     const exactName = terms.some((term) => sponsorName.includes(term));
     const matches = terms.reduce((score, term) => score + (text.includes(term) ? 1 : 0), 0);
-    const tierBoost = { exclusive: 4, premium: 3, featured: 1.75, standard: 0 }[sponsor.premium_tier || "standard"] || 0;
-    return matches + tierBoost + (exactName ? 2 : 0) + (sponsor.is_featured ? 1 : 0);
+    const directMatches = directTerms.reduce((score, term) => score + (text.includes(term) ? 1 : 0), 0);
+    const premiumRelevant = !directTerms.length || directMatches > 0 || exactName;
+    const tierBoost = premiumRelevant ? premiumWeight(sponsor) : 0;
+    const featuredBoost = !terms.length || matches > 0 ? (sponsor.is_featured ? 1 : 0) : 0;
+    return matches + tierBoost + (exactName ? 2 : 0) + featuredBoost;
   }
 
   function sponsorMatchesFilters(sponsor) {
@@ -204,14 +216,22 @@
   }
 
   function filterSponsors(rows) {
+    const directTerms = directQueryTerms(directoryState.query).map((term) => term.toLowerCase());
     const terms = expandQuery(directoryState.query).map((term) => term.toLowerCase());
     const filtered = rows
       .filter(sponsorMatchesFilters)
-      .map((sponsor) => ({ sponsor, score: scoreSponsor(sponsor, terms) }))
+      .map((sponsor) => ({ sponsor, score: scoreSponsor(sponsor, terms, directTerms) }))
       .filter((row) => !terms.length || row.score > 0)
       .sort((a, b) => {
         if (terms.length && b.score !== a.score) return b.score - a.score;
+        if (!terms.length) {
+          const premiumDelta = premiumWeight(b.sponsor) - premiumWeight(a.sponsor);
+          if (premiumDelta) return premiumDelta;
+        }
         if (b.sponsor.is_featured !== a.sponsor.is_featured) return Number(b.sponsor.is_featured) - Number(a.sponsor.is_featured);
+        if (Number(b.sponsor.premium_rank || 0) !== Number(a.sponsor.premium_rank || 0)) {
+          return Number(b.sponsor.premium_rank || 0) - Number(a.sponsor.premium_rank || 0);
+        }
         return a.sponsor.name.localeCompare(b.sponsor.name);
       });
 
@@ -227,6 +247,7 @@
     const suffix = parts.length ? ` ${parts.join(", ")}` : "";
 
     if (!total) return `No sponsors${suffix}`;
+    if (directoryState.query) return `Showing all ${total} sponsor${total === 1 ? "" : "s"}${suffix}`;
     return `Showing ${start}-${end} of ${total} sponsor${total === 1 ? "" : "s"}${suffix}`;
   }
 
@@ -235,9 +256,12 @@
     const areas = (sponsor.service_areas || []).slice(0, 4).join(" · ");
     const states = (sponsor.states || []).join(" · ");
     const meta = [areas, states && `State: ${states}`].filter(Boolean).join(" | ");
+    const isPremium = ["exclusive", "premium", "featured"].includes(sponsor.premium_tier || "");
+    const badge = isPremium ? `<strong class="premium-badge">${escapeHtml(sponsor.premium_tier)} listing</strong>` : "";
 
-    return `<article>
+    return `<article class="${isPremium ? "is-premium" : ""}">
       <div>
+        ${badge}
         <span>${escapeHtml(sponsor.category || "Sponsor")}</span>
         <h3>${escapeHtml(sponsor.name)}</h3>
         <p>${escapeHtml(sponsor.phone || services || "Show sponsor")}</p>
@@ -249,13 +273,17 @@
 
   function renderRows() {
     const total = activeRows.length;
-    const pageCount = Math.max(1, Math.ceil(total / directoryState.pageSize));
+    const showAllResults = Boolean(directoryState.query);
+    const effectivePageSize = showAllResults ? Math.max(total, 1) : directoryState.pageSize;
+    const pageCount = Math.max(1, Math.ceil(total / effectivePageSize));
     directoryState.page = Math.min(directoryState.page, pageCount);
-    const startIndex = (directoryState.page - 1) * directoryState.pageSize;
-    const visibleRows = activeRows.slice(startIndex, startIndex + directoryState.pageSize);
+    const startIndex = (directoryState.page - 1) * effectivePageSize;
+    const visibleRows = activeRows.slice(startIndex, startIndex + effectivePageSize);
     const start = total ? startIndex + 1 : 0;
     const end = total ? startIndex + visibleRows.length : 0;
 
+    pageSizeSelect.disabled = showAllResults;
+    pageSizeSelect.closest("label").classList.toggle("is-disabled", showAllResults);
     count.textContent = resultSummary(total, start, end);
     list.innerHTML = visibleRows.length
       ? visibleRows.map(sponsorCard).join("")
@@ -275,7 +303,7 @@
   }
 
   function renderPagination(pageCount) {
-    if (activeRows.length <= directoryState.pageSize) {
+    if (directoryState.query || activeRows.length <= directoryState.pageSize) {
       pagination.innerHTML = "";
       return;
     }
@@ -382,7 +410,7 @@
       updateSponsors();
     })
     .catch(() => {
-      count.textContent = "Sponsor directory unavailable";
+      count.textContent = "Sponsor listings unavailable";
       list.innerHTML = "";
       pagination.innerHTML = "";
     });

@@ -1,41 +1,46 @@
 **Source Visual Truth**
-- Path: `/Users/brianhakel2/.codex/attachments/995372f4-c9c7-40e5-907c-009b9545cad2/codex-clipboard-035bb8f9-5c07-4500-b09b-4ba4c8ee810b.png`
-- Notes: Use the screenshot as the before-state plus Brian's requested corrections: remove "cleaner front door" copy, avoid the white KTRH action tile, use KTRH blue/green accents, enlarge PODCAST/LISTEN LIVE/EMAIL LIST/MERCH STORE action text, and make the directory paginated with list/card views and filters.
+- Path: `/Users/brianhakel2/.codex/attachments/4de2b806-1961-4533-a8fe-b298ae85aff3/codex-clipboard-68d030b0-f21f-4b92-a97c-5fbc41e6e0c7.png`
+- Notes: Use the screenshot as the before-state plus Brian's requested corrections: remove generated gradients and draft labels, replace the giant title text with the official MB Show logo, expand the red show-times block so the right-side link grid fills the panel, rewrite sponsor search copy for radio listeners, avoid pagination in search results, and demonstrate premium listings with Abacus only when relevant.
 
 **Implementation Evidence**
-- Desktop viewport screenshot: `/tmp/mb-show-directory-desktop-viewport.png`
-- Desktop full-page screenshot: `/tmp/mb-show-directory-desktop.png`
-- Texas list-view screenshot: `/tmp/mb-show-directory-list-texas.png`
-- Mobile screenshot: `/tmp/mb-show-directory-mobile.png`
-- Full-view comparison evidence: `/tmp/mb-show-design-compare.png`
+- Desktop full-page screenshot: `/tmp/mb-show-flat-hero-desktop.png`
+- Desktop viewport screenshot: `/tmp/mb-show-flat-hero-desktop-viewport.png`
+- HVAC premium search screenshot: `/tmp/mb-show-premium-hvac-search.png`
+- Patio search screenshot: `/tmp/mb-show-patio-unpaginated.png`
+- Mobile screenshot: `/tmp/mb-show-flat-hero-mobile.png`
+- Full-view comparison evidence: `/tmp/mb-show-flat-design-compare.png`
 - Viewport: desktop 1440x970 and mobile 390x1200
-- State: homepage default, sponsor directory card view, Texas-filtered list view
+- State: homepage default, HVAC search, patio search
 
 **Findings**
 - No actionable P0/P1/P2 findings remain.
 
 **Required Fidelity Surfaces**
-- Fonts and typography: action tile labels are now materially larger and uppercase; hero and section hierarchy still fits the existing MB draft style without text overflow on desktop or mobile.
-- Spacing and layout rhythm: sponsor controls, cards, list view, and pagination hold an 8px-radius system and remain readable at desktop and mobile widths.
-- Colors and visual tokens: KTRH/source radio colors are now represented with blue, green, red, and gold; the former white KTRH tile is gone.
-- Image quality and asset fidelity: existing logo and merch images still render from source assets; no placeholder image replacements were introduced.
-- Copy and content: "cleaner front door" was removed; sponsor directory copy still explains the finder without sounding like internal product language.
+- Fonts and typography: the hero no longer uses oversized generated title text; the official logo is the primary brand mark, and the search heading uses listener-facing radio-show language.
+- Spacing and layout rhythm: the red schedule panel is taller, the quick-link grid fills the right card more evenly, and mobile controls remain stacked without overlap.
+- Colors and visual tokens: all gradient backgrounds were removed; the page uses flat navy, red, blue, green, and gold brand surfaces.
+- Image quality and asset fidelity: the existing official MB logo image is reused at hero scale; no placeholder or generated image assets were introduced.
+- Copy and content: "Official show hub draft", "Sponsor directory", and the previous long-post language were removed from visible UI.
 
 **Patches Made**
-- Reworked hero quick links to LISTEN LIVE, PODCAST, EMAIL LIST, and MERCH STORE.
-- Added state, area, category, page-size, card/list, clear, and pagination controls.
-- Added client-side query expansion, derived state filters, card/list rendering, and result summaries.
-- Added Playwright coverage for pagination, Texas filter, and list-view toggle.
+- Replaced hero title text with the official MB Show logo.
+- Flattened hero, sponsor, and schedule backgrounds.
+- Expanded the live-times panel and filled the right-side card.
+- Rewrote the sponsor search heading.
+- Disabled pagination while searching and render all matching search results.
+- Added Abacus as a premium demo listing that ranks first on default/relevant searches and does not appear on irrelevant patio search.
+- Updated Supabase seed generation and search-term expansion to match the premium/search behavior.
 
 **Open Questions**
-- None blocking. Supabase creation/import is still pending Brian's org/cost confirmation from the prior step.
+- None blocking. Supabase project creation/import is still pending org/cost confirmation.
 
 **Implementation Checklist**
 - Validate HTML and JS syntax.
 - Verify directory interactions with Playwright.
-- Inspect desktop, list-view, and mobile screenshots.
+- Inspect desktop, search, and mobile screenshots.
+- Deploy the updated preview to Vercel.
 
 **Follow-up Polish**
-- Once Supabase is created, make state/city normalization part of the import pipeline instead of only deriving it in the browser.
+- Once Supabase is created, normalize sponsor categories/service keywords more carefully so paid placement controls have clean admin-facing guardrails.
 
 final result: passed

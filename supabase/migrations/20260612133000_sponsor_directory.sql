@@ -241,8 +241,8 @@ end;
 $$;
 
 insert into public.sponsor_search_terms (phrase, expands_to, category_hint, weight) values
-  ('patio', array['outdoor living', 'outdoor kitchen', 'pavers', 'landscape', 'shade', 'deck', 'backyard', 'home improvement'], 'Home Improvement', 2),
-  ('outdoor kitchen', array['patio', 'outdoor living', 'landscape', 'pavers', 'home improvement'], 'Home Improvement', 2),
+  ('patio', array['outdoor living', 'outdoor kitchen', 'pavers', 'landscape', 'shade', 'deck', 'backyard'], 'Home Improvement', 2),
+  ('outdoor kitchen', array['patio', 'outdoor living', 'landscape', 'pavers', 'deck', 'backyard'], 'Home Improvement', 2),
   ('hvac', array['air conditioning', 'ac repair', 'heating', 'cooling', 'trane'], 'HVAC', 2),
   ('ac', array['hvac', 'air conditioning', 'cooling', 'ac repair'], 'HVAC', 2),
   ('air conditioner', array['hvac', 'air conditioning', 'cooling', 'ac repair'], 'HVAC', 2),
