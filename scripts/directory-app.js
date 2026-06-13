@@ -31,6 +31,8 @@
     nationwide: "Nationwide",
   };
 
+  const locationTerms = new Set(["greater", "houston", "texas", "louisiana", "nationwide", "united", "states"]);
+
   let sponsors = [];
   let activeRows = [];
 
@@ -41,7 +43,7 @@
     category: "",
     page: 1,
     pageSize: 12,
-    view: window.localStorage.getItem("mbSponsorView") || "cards",
+    view: window.localStorage.getItem("mbSponsorView") || "list",
   };
 
   function slugify(value) {
@@ -106,6 +108,10 @@
     return unique(query.split(/\s+/).map((term) => term.trim()).filter(Boolean));
   }
 
+  function searchIntentTerms(query) {
+    return directQueryTerms(query).filter((term) => !locationTerms.has(term.toLowerCase()));
+  }
+
   function expandQuery(query) {
     const lower = query.toLowerCase();
     const extra = Object.entries(synonyms)
@@ -152,6 +158,15 @@
     const matchesArea = !directoryState.area || sponsor.service_areas.includes(directoryState.area);
     const matchesCategory = !directoryState.category || sponsor.category === directoryState.category;
     return matchesState && matchesArea && matchesCategory;
+  }
+
+  function sponsorMatchesQueryLocation(sponsor) {
+    const query = directoryState.query.toLowerCase();
+    const areaText = [...sponsor.service_areas, ...sponsor.cities, ...sponsor.states].join(" ").toLowerCase();
+    if (query.includes("houston") && !areaText.includes("houston")) return false;
+    if (query.includes("texas") && !areaText.includes("texas")) return false;
+    if (query.includes("louisiana") && !areaText.includes("louisiana")) return false;
+    return true;
   }
 
   async function fetchFromSupabase() {
@@ -216,10 +231,14 @@
   }
 
   function filterSponsors(rows) {
-    const directTerms = directQueryTerms(directoryState.query).map((term) => term.toLowerCase());
-    const terms = expandQuery(directoryState.query).map((term) => term.toLowerCase());
+    const directTerms = searchIntentTerms(directoryState.query).map((term) => term.toLowerCase());
+    const terms = unique([
+      ...searchIntentTerms(directoryState.query),
+      ...expandQuery(directoryState.query).filter((term) => !locationTerms.has(term.toLowerCase())),
+    ]).map((term) => term.toLowerCase());
     const filtered = rows
       .filter(sponsorMatchesFilters)
+      .filter(sponsorMatchesQueryLocation)
       .map((sponsor) => ({ sponsor, score: scoreSponsor(sponsor, terms, directTerms) }))
       .filter((row) => !terms.length || row.score > 0)
       .sort((a, b) => {

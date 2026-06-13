@@ -13,7 +13,7 @@
       rel="icon"
       href="https://michaelberryshow.com/cdn/shop/files/mb-logo-300x276.png?crop=center&height=32&v=1683575562&width=32"
     >
-    <link rel="stylesheet" href="./styles.css?v=11">
+    <link rel="stylesheet" href="./styles.css?v=12">
   </head>
   <body>
     <header class="topbar">
@@ -59,7 +59,11 @@
         <div class="broadcast-card" role="group" aria-label="Broadcast schedule and links">
           <div class="live-strip">
             <span>Weekdays</span>
-            <strong>8a-11a and 5p-7p</strong>
+            <div class="live-times">
+              <strong>8a-11a</strong>
+              <em>and</em>
+              <strong>5p-7p</strong>
+            </div>
           </div>
 
           <div class="quick-links">
@@ -113,7 +117,7 @@
               </select>
             </label>
 
-            <label>
+            <label class="optional-filter">
               <span>Area</span>
               <select id="sponsor-area-filter" name="area">
                 <option value="">All areas</option>
@@ -127,7 +131,7 @@
               </select>
             </label>
 
-            <label>
+            <label class="optional-filter">
               <span>Per page</span>
               <select id="sponsor-page-size" name="page_size">
                 <option value="12">12</option>
@@ -138,8 +142,8 @@
             </label>
 
             <div class="view-toggle" role="group" aria-label="Directory view">
-              <button type="button" data-view="cards" aria-pressed="true">Cards</button>
-              <button type="button" data-view="list" aria-pressed="false">List</button>
+              <button type="button" data-view="cards" aria-pressed="false">Cards</button>
+              <button type="button" data-view="list" aria-pressed="true">List</button>
             </div>
 
             <button class="clear-filters" type="button" id="sponsor-clear-filters">Clear</button>
@@ -147,7 +151,7 @@
 
           <p class="result-count" id="sponsor-result-count">Loading sponsors</p>
 
-          <div class="sponsor-list card-view" id="sponsor-list">
+          <div class="sponsor-list list-view" id="sponsor-list">
             <article class="sponsor-loading">
               <span>Loading</span>
               <h3>Fetching sponsors</h3>
