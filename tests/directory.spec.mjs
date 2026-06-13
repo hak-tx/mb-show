@@ -28,8 +28,8 @@ test("directory search and admin shell", async ({ page }) => {
   await page.fill("#sponsor-search", "hvac houston");
   await expect(page.locator("#sponsor-result-count")).toContainText("hvac houston");
   await expect(page.locator("#sponsor-list")).toContainText(/Northwind|Trane|Uptown|Abacus|Techstar/);
-  await expect(page.locator("#sponsor-list article").first()).toContainText("Abacus Plumbing & Electrical");
-  await expect(page.locator("#sponsor-list article").first()).toContainText("premium listing");
+  await expect(page.locator("#sponsor-list")).toContainText("Abacus Plumbing & Electrical");
+  await expect(page.locator("#sponsor-list")).not.toContainText("premium listing");
 
   await page.goto(`${baseUrl}/admin.html`, { waitUntil: "networkidle" });
   await expect(page.locator("#admin-status")).toContainText("Supabase connection pending");
