@@ -14,14 +14,18 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(desktopNav.getByRole("link", { name: "Contact" })).toBeVisible();
   await expect(desktopNav.getByRole("link", { name: "Join List" })).toBeVisible();
   await expect(page.locator("#sponsor-list article")).toHaveCount(0);
-  await expect(page.locator("#sponsor-result-count")).toContainText("Search or choose a filter");
+  await expect(page.locator("#sponsor-result-count")).toContainText("Search to see matching show sponsors");
   await expect(page.locator("#sponsor-list")).toBeHidden();
   await expect(page.locator("#sponsor-more-results")).toBeHidden();
   await expect(page.locator(".directory-shell")).toHaveCSS("background-color", "rgb(247, 249, 253)");
   await expect(page.locator(".view-toggle button.is-active")).toHaveCSS("background-color", "rgb(7, 20, 59)");
+  await expect(page.locator("#sponsor-state-filter")).toHaveCount(0);
+  await expect(page.locator("#sponsor-category-filter")).toHaveCount(0);
+  await expect(page.locator("#sponsor-clear-filters")).toHaveCount(0);
+  await expect(page.locator(".view-hint")).toContainText("View results as");
 
-  await page.selectOption("#sponsor-state-filter", "Texas");
-  await expect(page.locator("#sponsor-result-count")).toContainText("Texas");
+  await page.fill("#sponsor-search", "houston");
+  await expect(page.locator("#sponsor-result-count")).toContainText("houston");
   await expect(page.locator("#sponsor-list article")).toHaveCount(12);
   await expect(page.locator("#sponsor-more-results")).toContainText("More");
   await page.getByRole("button", { name: "More" }).click();
@@ -43,7 +47,7 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-list")).toContainText("Abacus Plumbing & Electrical");
   await expect(page.locator("#sponsor-list")).not.toContainText("premium listing");
 
-  await page.getByRole("button", { name: "Clear" }).click();
+  await page.fill("#sponsor-search", "");
   await expect(page.locator("#sponsor-list article")).toHaveCount(0);
   await expect(page.locator("#sponsor-list")).toBeHidden();
 

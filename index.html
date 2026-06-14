@@ -13,7 +13,7 @@
       rel="icon"
       href="https://michaelberryshow.com/cdn/shop/files/mb-logo-300x276.png?crop=center&height=32&v=1683575562&width=32"
     >
-    <link rel="stylesheet" href="./styles.css?v=16">
+    <link rel="stylesheet" href="./styles.css?v=17">
   </head>
   <body>
     <header class="topbar site-header">
@@ -88,61 +88,21 @@
           <div>
             <h2>Search all Michael Berry Show Sponsors you hear on air.</h2>
           </div>
-          <a
-            class="text-link"
-            href="https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Full KTRH list
-          </a>
         </div>
 
         <div class="directory-shell">
           <form class="search-row" role="search" aria-label="Search sponsors" id="sponsor-search-form">
             <label class="sr-only" for="sponsor-search">Search sponsors</label>
-            <input id="sponsor-search" name="q" type="search" placeholder="Search service, city, or sponsor">
+            <input id="sponsor-search" name="q" type="search" placeholder="Search service or sponsor">
             <button type="submit">Search</button>
           </form>
 
-          <div class="directory-controls" role="group" aria-label="Sponsor filters">
-            <label>
-              <span>State</span>
-              <select id="sponsor-state-filter" name="state">
-                <option value="">All states</option>
-              </select>
-            </label>
-
-            <label class="optional-filter">
-              <span>Area</span>
-              <select id="sponsor-area-filter" name="area">
-                <option value="">All areas</option>
-              </select>
-            </label>
-
-            <label>
-              <span>Category</span>
-              <select id="sponsor-category-filter" name="category">
-                <option value="">All categories</option>
-              </select>
-            </label>
-
-            <label class="optional-filter">
-              <span>Per page</span>
-              <select id="sponsor-page-size" name="page_size">
-                <option value="12">12</option>
-                <option value="24">24</option>
-                <option value="40">40</option>
-                <option value="80">All</option>
-              </select>
-            </label>
-
+          <div class="directory-controls view-controls" role="group" aria-label="Sponsor result view">
+            <p class="view-hint" id="sponsor-view-hint">View results as</p>
             <div class="view-toggle" role="group" aria-label="Directory view">
               <button type="button" data-view="cards" aria-pressed="false">Cards</button>
               <button type="button" data-view="list" aria-pressed="true">List</button>
             </div>
-
-            <button class="clear-filters" type="button" id="sponsor-clear-filters">Clear</button>
           </div>
 
           <p class="result-count" id="sponsor-result-count">Loading sponsors</p>
@@ -156,6 +116,17 @@
           </div>
 
           <div class="more-results" id="sponsor-more-results" hidden></div>
+        </div>
+
+        <div class="sponsor-footer-link">
+          <a
+            class="text-link"
+            href="https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Full KTRH list
+          </a>
         </div>
       </section>
 

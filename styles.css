@@ -395,8 +395,8 @@ h1 {
 
 .directory-shell {
   display: grid;
-  gap: 12px;
-  padding: 12px;
+  gap: 14px;
+  padding: clamp(14px, 2.4vw, 20px);
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 8px;
   background: #f7f9fd;
@@ -405,37 +405,45 @@ h1 {
 .search-row {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 10px;
-  padding: 10px;
-  border: 1px solid #dfe4ed;
+  gap: 12px;
+  padding: clamp(10px, 1.8vw, 14px);
+  border: 2px solid #d7dde8;
   border-radius: 8px;
   background: var(--white);
+  box-shadow: 0 12px 24px rgba(7, 20, 59, 0.08);
 }
 
 .search-row input {
   min-width: 0;
-  min-height: 46px;
-  padding: 0 14px;
+  min-height: 58px;
+  padding: 0 18px;
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--ink);
+  font-size: 20px;
+  font-weight: 750;
 }
 
 .search-row button {
-  min-width: 112px;
+  min-width: 156px;
   border: 0;
+  font-size: 20px;
   box-shadow: none;
 }
 
 .directory-controls {
   display: grid;
-  grid-template-columns: minmax(160px, 1fr) minmax(190px, 1fr) auto auto;
-  gap: 10px;
-  align-items: end;
-  padding: 10px;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 0;
   border: 1px solid #dfe4ed;
   border-radius: 8px;
   background: var(--white);
+}
+
+.view-controls {
+  padding: 12px;
 }
 
 .optional-filter {
@@ -454,6 +462,14 @@ h1 {
 .directory-controls label span {
   color: var(--navy);
   font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.view-hint {
+  margin: 0;
+  color: var(--navy);
+  font-size: 13px;
   font-weight: 950;
   text-transform: uppercase;
 }
@@ -511,6 +527,16 @@ h1 {
 .result-count {
   margin: 0;
   color: #4f5b6d;
+}
+
+.sponsor-footer-link {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.sponsor-footer-link .text-link {
+  min-width: 190px;
 }
 
 .sponsor-list {
@@ -805,7 +831,7 @@ h1 {
 
   .sponsor-list,
   .product-grid,
-  .directory-controls {
+  .directory-controls:not(.view-controls) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -932,12 +958,12 @@ h1 {
   }
 
   .directory-shell {
-    gap: 10px;
+    gap: 12px;
     padding: 10px;
   }
 
   .search-row {
-    padding: 8px;
+    padding: 10px;
   }
 
   .search-row input,
@@ -954,8 +980,16 @@ h1 {
   }
 
   .directory-controls {
-    gap: 12px;
+    gap: 10px;
     padding: 12px;
+  }
+
+  .view-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .view-hint {
+    text-align: center;
   }
 
   .button,

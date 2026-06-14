@@ -5,11 +5,6 @@
   const list = document.querySelector("#sponsor-list");
   const count = document.querySelector("#sponsor-result-count");
   const moreResults = document.querySelector("#sponsor-more-results");
-  const stateFilter = document.querySelector("#sponsor-state-filter");
-  const areaFilter = document.querySelector("#sponsor-area-filter");
-  const categoryFilter = document.querySelector("#sponsor-category-filter");
-  const pageSizeSelect = document.querySelector("#sponsor-page-size");
-  const clearButton = document.querySelector("#sponsor-clear-filters");
   const viewButtons = Array.from(document.querySelectorAll("[data-view]"));
 
   const synonyms = {
@@ -160,7 +155,7 @@
   }
 
   function hasActiveCriteria() {
-    return Boolean(directoryState.query || directoryState.state || directoryState.area || directoryState.category);
+    return Boolean(directoryState.query);
   }
 
   async function fetchFromSupabase() {
@@ -176,8 +171,8 @@
       body: JSON.stringify({
         search_query: directoryState.query,
         city_filter: null,
-        state_filter: directoryState.state === "Nationwide" ? "United States" : directoryState.state,
-        area_filter: directoryState.area,
+        state_filter: null,
+        area_filter: null,
         result_limit: 100,
       }),
     });
@@ -193,24 +188,7 @@
     return data.sponsors.map(normalizeSponsor);
   }
 
-  function renderOptions(select, values, firstLabel) {
-    const current = select.value;
-    select.innerHTML = [
-      `<option value="">${escapeHtml(firstLabel)}</option>`,
-      ...values.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`),
-    ].join("");
-    select.value = values.includes(current) ? current : "";
-  }
-
   function renderFilters() {
-    const stateOptions = unique(sponsors.flatMap((sponsor) => sponsor.states)).sort(labelSort);
-    const areaOptions = unique(sponsors.flatMap((sponsor) => sponsor.service_areas)).sort(labelSort);
-    const categoryOptions = unique(sponsors.map((sponsor) => sponsor.category)).sort(labelSort);
-
-    renderOptions(stateFilter, stateOptions, "All states");
-    renderOptions(areaFilter, areaOptions, "All areas");
-    renderOptions(categoryFilter, categoryOptions, "All categories");
-    pageSizeSelect.value = String(directoryState.pageSize);
     syncViewButtons();
   }
 
@@ -273,7 +251,7 @@
 
   function renderRows() {
     if (!hasActiveCriteria()) {
-      count.textContent = "Search or choose a filter to see matching show sponsors.";
+      count.textContent = "Search to see matching show sponsors.";
       list.hidden = true;
       list.innerHTML = "";
       moreResults.hidden = true;
@@ -287,8 +265,6 @@
     const start = total ? 1 : 0;
     const end = visibleRows.length;
 
-    pageSizeSelect.disabled = false;
-    pageSizeSelect.closest("label").classList.remove("is-disabled");
     count.textContent = resultSummary(total, start, end);
     list.hidden = false;
     list.innerHTML = visibleRows.length
@@ -296,7 +272,7 @@
       : `<article class="sponsor-empty">
           <span>No results</span>
           <h3>Try a broader search</h3>
-          <p>Clear a filter or search for a related service like HVAC, patio, roofing, or attorney.</p>
+          <p>Search for a related service like HVAC, patio, roofing, or attorney.</p>
         </article>`;
 
     renderMoreButton(total, end);
@@ -366,32 +342,6 @@
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     directoryState.query = input.value.trim();
-    resetPageAndUpdate();
-  });
-
-  [stateFilter, areaFilter, categoryFilter].forEach((select) => {
-    select.addEventListener("change", () => {
-      directoryState.state = stateFilter.value;
-      directoryState.area = areaFilter.value;
-      directoryState.category = categoryFilter.value;
-      resetPageAndUpdate();
-    });
-  });
-
-  pageSizeSelect.addEventListener("change", () => {
-    directoryState.pageSize = Number(pageSizeSelect.value);
-    resetPageAndUpdate();
-  });
-
-  clearButton.addEventListener("click", () => {
-    input.value = "";
-    directoryState.query = "";
-    directoryState.state = "";
-    directoryState.area = "";
-    directoryState.category = "";
-    stateFilter.value = "";
-    areaFilter.value = "";
-    categoryFilter.value = "";
     resetPageAndUpdate();
   });
 
