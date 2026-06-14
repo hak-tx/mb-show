@@ -89,6 +89,15 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-list")).toContainText("Brookway Landscape and Irrigation");
   await expect(page.locator("#sponsor-list")).not.toContainText("MainStreet Wealth Management");
 
+  await page.fill("#sponsor-search", "lumber");
+  await expect(page.locator("#sponsor-result-count")).toContainText("lumber");
+  await expect(page.locator("#sponsor-list")).toContainText("McCauley Lumber");
+  await expect(page.locator("#sponsor-list")).not.toContainText("Abacus Plumbing & Electrical");
+
+  await page.fill("#sponsor-search", "attic insulation");
+  await expect(page.locator("#sponsor-result-count")).toContainText("attic insulation");
+  await expect(page.locator("#sponsor-list")).toContainText("Abacus Plumbing & Electrical");
+
   await page.fill("#sponsor-search", "plumbing");
   await expect(page.locator("#sponsor-result-count")).toContainText("plumbing");
   await expect(page.locator("#sponsor-list")).toContainText("Abacus Plumbing & Electrical");

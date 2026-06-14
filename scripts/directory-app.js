@@ -23,6 +23,9 @@
     "water heater": ["plumbing", "plumber", "tankless water heater"],
     generator: ["whole home generator", "standby generator", "backup generator", "backup power", "generac"],
     "backup power": ["generator", "whole home generator", "standby generator"],
+    attic: ["attic insulation", "attic ventilation", "solar attic fan", "attic tent", "roof repair"],
+    attics: ["attic", "attic insulation", "attic ventilation", "solar attic fan", "attic tent"],
+    insulation: ["attic insulation", "attic ventilation"],
     roof: ["roofing", "roof replacement", "roof repair", "roofer"],
     roofing: ["roof", "roof replacement", "roof repair", "roofer"],
     foundation: ["foundation repair", "slab repair", "pier and beam", "house leveling"],
@@ -264,7 +267,7 @@
     return unique([...directTerms, ...extra].map(normalizeSearchText).filter(Boolean));
   }
 
-  function scoreSponsor(sponsor, terms, fuzzyTerms) {
+  function scoreSponsor(sponsor, terms, fuzzyTerms, allowFuzzy) {
     const fieldGroups = [
       { value: sponsor.name, weight: 8, fuzzy: true },
       { value: sponsor.category, weight: 7, fuzzy: true },
@@ -287,7 +290,7 @@
         if (searchTextIncludes(text, normalizedTerm)) {
           return fieldTotal + field.weight * (normalizedTerm.includes(" ") ? 3 : 2);
         }
-        if (field.fuzzy && fuzzyTerms.has(normalizedTerm) && fuzzyTokenMatch(normalizedTerm, searchTokens(text))) {
+        if (allowFuzzy && field.fuzzy && fuzzyTerms.has(normalizedTerm) && fuzzyTokenMatch(normalizedTerm, searchTokens(text))) {
           return fieldTotal + field.weight;
         }
         return fieldTotal;
@@ -367,11 +370,16 @@
   function filterSponsors(rows) {
     const fuzzyTerms = new Set(searchIntentTerms(directoryState.query).map(normalizeSearchText));
     const terms = expandQuery(directoryState.query).filter((term) => !locationTerms.has(term.toLowerCase()));
-    const filtered = rows
-      .filter(sponsorMatchesFilters)
-      .filter(sponsorMatchesQueryLocation)
-      .map((sponsor) => ({ sponsor, score: scoreSponsor(sponsor, terms, fuzzyTerms) }))
-      .filter((row) => !terms.length || row.score > 0)
+    const candidates = rows.filter(sponsorMatchesFilters).filter(sponsorMatchesQueryLocation);
+    const exactRows = candidates
+      .map((sponsor) => ({ sponsor, score: scoreSponsor(sponsor, terms, fuzzyTerms, false) }))
+      .filter((row) => !terms.length || row.score > 0);
+    const scoredRows = exactRows.length
+      ? exactRows
+      : candidates
+          .map((sponsor) => ({ sponsor, score: scoreSponsor(sponsor, terms, fuzzyTerms, true) }))
+          .filter((row) => !terms.length || row.score > 0);
+    const filtered = scoredRows
       .sort((a, b) => {
         if (terms.length && b.score !== a.score) return b.score - a.score;
         return a.sponsor.name.localeCompare(b.sponsor.name);
