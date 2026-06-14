@@ -65,11 +65,11 @@ img {
 }
 
 .topbar {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 10;
   display: grid;
   grid-template-columns: auto 1fr auto;
+  grid-template-areas: "logo nav actions";
   align-items: center;
   gap: 24px;
   min-height: 92px;
@@ -80,6 +80,7 @@ img {
 }
 
 .logo {
+  grid-area: logo;
   display: inline-flex;
   align-items: center;
 }
@@ -89,14 +90,24 @@ img {
 }
 
 .primary-nav {
+  grid-area: nav;
   display: flex;
   justify-content: center;
   gap: 6px;
   flex-wrap: wrap;
 }
 
+.header-actions {
+  grid-area: actions;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .primary-nav a,
 .cart-button,
+.menu-toggle,
 .button,
 .search-row button,
 .directory-controls button,
@@ -120,6 +131,7 @@ img {
 }
 
 .cart-button,
+.menu-toggle,
 .button.primary,
 .search-row button {
   color: var(--white);
@@ -129,6 +141,13 @@ img {
 
 .cart-button {
   padding: 0 16px;
+}
+
+.menu-toggle {
+  display: none;
+  border: 0;
+  padding: 0 14px;
+  cursor: pointer;
 }
 
 main {
@@ -764,13 +783,8 @@ h1 {
 }
 
 @media (max-width: 1120px) {
-  .hero,
-  .topbar {
+  .hero {
     grid-template-columns: 1fr;
-  }
-
-  .topbar {
-    justify-items: center;
   }
 
   .hero-copy,
@@ -796,9 +810,54 @@ h1 {
 
 @media (max-width: 700px) {
   .topbar {
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      "logo actions"
+      "nav nav";
     min-height: auto;
-    gap: 12px;
-    padding: 12px;
+    gap: 8px 12px;
+    padding: 8px 12px;
+    align-items: center;
+  }
+
+  .logo img {
+    width: 82px;
+  }
+
+  .header-actions {
+    gap: 6px;
+  }
+
+  .cart-button,
+  .menu-toggle {
+    min-height: 38px;
+    padding: 0 11px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+  }
+
+  .site-header .primary-nav {
+    display: none;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    padding-top: 4px;
+  }
+
+  .site-header.is-menu-open .primary-nav {
+    display: grid;
+  }
+
+  .site-header .primary-nav a {
+    min-height: 38px;
+    padding: 0 8px;
+    border: 1px solid rgba(7, 20, 59, 0.1);
+    background: #f7f8fb;
+    font-size: 14px;
   }
 
   main {
