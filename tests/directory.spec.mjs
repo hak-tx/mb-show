@@ -33,10 +33,21 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#media-frame-wrap")).toBeVisible();
   await expect(page.locator("#media-title")).toContainText("NewsRadio 740 KTRH live");
   await expect(page.locator("#media-frame")).toHaveAttribute("src", /newsradio-740-ktrh-2285/);
+  await expect(page.locator("#media-frame")).toHaveAttribute("height", "118");
+  await page.getByRole("button", { name: "Minimize" }).click();
+  await expect(page.locator("#media-player")).toHaveAttribute("data-player-state", "minimized");
+  await expect(page.locator("#media-frame")).toBeVisible();
+  await expect(page.locator("#media-frame")).toHaveAttribute("src", /newsradio-740-ktrh-2285/);
+  await page.getByRole("button", { name: "Expand" }).click();
+  await expect(page.locator("#media-player")).toHaveAttribute("data-player-state", "open");
 
   await page.locator("#media-player button[data-player-open='podcast']").click();
   await expect(page.locator("#media-title")).toContainText("The Michael Berry Show podcast");
   await expect(page.locator("#media-frame")).toHaveAttribute("src", /44-the-michael-berry-show-27764850/);
+  await expect(page.locator("#media-frame")).toHaveAttribute("height", "500");
+  await page.getByRole("button", { name: "Minimize" }).click();
+  await expect(page.locator("#media-player")).toHaveAttribute("data-player-state", "minimized");
+  await expect(page.locator("#media-frame")).toBeVisible();
   await page.getByRole("button", { name: "Hide" }).click();
   await expect(page.locator("#media-player")).toBeHidden();
 

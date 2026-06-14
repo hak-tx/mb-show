@@ -80,5 +80,6 @@
 - Admin now supports sponsor search, add/edit/delete/archive, listing status, listing level, phone number, website/tracking URL, service areas, service text, and add/remove keyword chips.
 - Latest screenshot evidence: `/tmp/mb-show-media-default.png`, `/tmp/mb-show-media-live.png`, `/tmp/mb-show-media-podcast.png`, `/tmp/mb-show-media-mobile-default.png`, `/tmp/mb-show-media-mobile-live.png`, `/tmp/mb-show-admin-top.png`, `/tmp/mb-show-admin-desktop-viewport.png`, `/tmp/mb-show-admin-mobile-top.png`, `/tmp/mb-show-admin-mobile-viewport.png`.
 - Verification: `npx --yes html-validate@latest index.html admin.html`, `node --check scripts/admin-app.js && node --check scripts/media-player.js`, `git diff --check`, and `BASE_URL=http://127.0.0.1:4182 npx playwright test tests/directory.spec.mjs --reporter=line` all passed.
+- Latest media-player adjustment: live radio now opens as a thinner radio widget, podcast keeps the taller episode picker, and minimized mode keeps a compact iHeart control strip visible with small `Expand` and `Hide` controls. Screenshot evidence: `/tmp/mb-show-radio-thin-desktop.png`, `/tmp/mb-show-radio-minimized-controls-desktop.png`, `/tmp/mb-show-radio-minimized-controls-mobile.png`.
 
 final result: passed

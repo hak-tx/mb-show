@@ -737,14 +737,71 @@ h1 {
   box-shadow: 0 18px 46px rgba(7, 20, 59, 0.22);
 }
 
+.media-dock[data-player-kind="live"][data-player-state="open"] {
+  width: min(960px, calc(100% - 20px));
+}
+
+.media-dock[data-player-state="minimized"],
 .media-dock[data-player-state="collapsed"] {
   left: auto;
   width: min(470px, calc(100% - 20px));
 }
 
+.media-dock[data-player-state="minimized"] [data-player-open],
+.media-dock[data-player-state="minimized"] #media-open-link,
 .media-dock[data-player-state="collapsed"] #media-open-link,
 .media-dock[data-player-state="collapsed"] #media-close {
   display: none;
+}
+
+.media-dock[data-player-state="minimized"] .media-dock-bar {
+  display: flex;
+  gap: 8px;
+  padding: 6px 8px;
+}
+
+.media-dock[data-player-state="minimized"] .media-dock-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.media-dock[data-player-state="minimized"] .media-dock-copy span {
+  margin-bottom: 0;
+  font-size: 10px;
+}
+
+.media-dock[data-player-state="minimized"] .media-dock-copy strong {
+  font-size: 13px;
+}
+
+.media-dock[data-player-state="minimized"] .media-dock-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+  width: auto;
+  flex-wrap: nowrap;
+}
+
+.media-dock[data-player-state="minimized"] .media-dock-actions button {
+  width: auto;
+  min-height: 30px;
+  padding: 0 9px;
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.media-dock[data-player-state="minimized"] .media-frame-wrap {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: hidden;
+  padding: 3px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.media-dock[data-player-state="minimized"] .media-frame-wrap iframe {
+  height: 78px;
 }
 
 .media-dock-bar {
@@ -818,12 +875,28 @@ h1 {
   background: #050d2a;
 }
 
+.media-dock[data-player-kind="live"] .media-frame-wrap {
+  padding: 6px;
+}
+
 .media-frame-wrap iframe {
   display: block;
   width: 100%;
   border: 0;
   border-radius: 8px;
   background: #050d2a;
+}
+
+.media-dock[data-player-kind="live"] .media-frame-wrap iframe {
+  height: 118px;
+}
+
+.media-dock[data-player-kind="podcast"] .media-frame-wrap iframe {
+  height: min(500px, 58vh);
+}
+
+.media-dock[data-player-kind][data-player-state="minimized"] .media-frame-wrap iframe {
+  height: 78px;
 }
 
 .admin-body {
@@ -1389,6 +1462,62 @@ h1 {
     width: 100%;
     min-height: 40px;
     padding: 0 8px;
+  }
+
+  .media-dock[data-player-state="minimized"] .media-dock-bar {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    padding: 6px 8px;
+  }
+
+  .media-dock[data-player-state="minimized"] .media-dock-copy {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .media-dock[data-player-state="minimized"] .media-dock-actions {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 6px;
+    width: auto;
+  }
+
+  .media-dock[data-player-state="minimized"] .media-dock-actions button {
+    width: auto;
+    min-height: 28px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  .media-dock[data-player-state="minimized"] .media-frame-wrap {
+    padding: 3px;
+  }
+
+  .media-dock[data-player-state="minimized"] .media-frame-wrap iframe,
+  .media-dock[data-player-kind][data-player-state="minimized"] .media-frame-wrap iframe {
+    height: 72px;
+  }
+
+  .media-dock[data-player-kind="live"][data-player-state="open"] #media-open-link {
+    display: none;
+  }
+
+  .media-dock[data-player-kind="live"][data-player-state="open"] .media-dock-bar {
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .media-dock[data-player-kind="live"][data-player-state="open"] .media-dock-actions button {
+    min-height: 36px;
+  }
+
+  .media-dock[data-player-kind="live"] .media-frame-wrap {
+    padding: 5px;
+  }
+
+  .media-dock[data-player-kind="live"] .media-frame-wrap iframe {
+    height: 92px;
   }
 
   .media-frame-wrap iframe {
