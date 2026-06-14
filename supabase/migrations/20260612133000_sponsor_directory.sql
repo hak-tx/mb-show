@@ -253,6 +253,9 @@ insert into public.sponsor_search_terms (phrase, expands_to, category_hint, weig
   ('insulation', array['home remodeling', 'whole home remodeling', 'home addition', 'construction', 'exterior remodeling', 'siding', 'roofing', 'building materials', 'custom home builder'], 'Home Improvement', 2),
   ('roof', array['roofing', 'roof repair', 'roof replacement', 'siding', 'home improvement'], 'Home Improvement', 2),
   ('foundation', array['foundation repair', 'slab', 'structural repair'], 'Home Improvement', 2),
+  ('retaining', array['retention pond', 'drainage', 'erosion control', 'grading', 'excavation', 'land clearing', 'dirt work', 'landscape materials', 'gravel', 'pavers'], 'Home Improvement', 2),
+  ('retaining wall', array['retention pond', 'drainage', 'erosion control', 'grading', 'excavation', 'land clearing', 'dirt work', 'landscape materials', 'gravel', 'pavers'], 'Home Improvement', 2),
+  ('hardscape', array['pavers', 'patio', 'landscape materials', 'outdoor living'], 'Home Improvement', 2),
   ('lawyer', array['attorney', 'law firm', 'legal'], 'Legal & Financial', 2),
   ('doctor', array['medical', 'health', 'wellness', 'physician'], 'Medical & Wellness', 2),
   ('restaurant', array['dining', 'food', 'coffee', 'tex-mex'], 'Food & Restaurants', 2)

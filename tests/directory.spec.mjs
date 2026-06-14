@@ -96,9 +96,19 @@ test("directory search and admin shell", async ({ page }) => {
 
   await page.fill("#sponsor-search", "attic insulation");
   await expect(page.locator("#sponsor-result-count")).toContainText("attic insulation");
+  await expect(page.locator("#sponsor-result-count")).toContainText("related sponsors");
   await expect(page.locator("#sponsor-list")).toContainText("All Star Construction");
   await expect(page.locator("#sponsor-list")).toContainText(/Allied|Design Tech|McCauley/);
   await expect(page.locator("#sponsor-list")).not.toContainText("Abacus Plumbing & Electrical");
+
+  await page.fill("#sponsor-search", "retaining");
+  await expect(page.locator("#sponsor-result-count")).toContainText("related sponsors");
+  await expect(page.locator("#sponsor-list")).toContainText(/Daniel Dean|Brookway|Cowboy|Allied Outdoor/);
+  await expect(page.locator("#sponsor-list")).not.toContainText("Dunn Fence");
+  await expect(page.locator("#sponsor-list")).not.toContainText("Katz Coffee");
+  await expect(page.locator("#sponsor-list")).not.toContainText("Muscle Cars of Texas");
+  await expect(page.locator("#sponsor-list")).not.toContainText("Oops! Steam Cleaning");
+  await expect(page.locator("#sponsor-list")).not.toContainText("Sunflower Floor Coatings");
 
   await page.fill("#sponsor-search", "plumbing");
   await expect(page.locator("#sponsor-result-count")).toContainText("plumbing");
