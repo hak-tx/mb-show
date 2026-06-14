@@ -17,6 +17,8 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-result-count")).toContainText("Search or choose a filter");
   await expect(page.locator("#sponsor-list")).toBeHidden();
   await expect(page.locator("#sponsor-more-results")).toBeHidden();
+  await expect(page.locator(".directory-shell")).toHaveCSS("background-color", "rgb(247, 249, 253)");
+  await expect(page.locator(".view-toggle button.is-active")).toHaveCSS("background-color", "rgb(7, 20, 59)");
 
   await page.selectOption("#sponsor-state-filter", "Texas");
   await expect(page.locator("#sponsor-result-count")).toContainText("Texas");
@@ -56,6 +58,12 @@ test("mobile header keeps nav collapsed", async ({ page }) => {
   await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
 
   const nav = page.getByRole("navigation", { name: "Primary" });
+  const quickLinkRows = await page.locator(".quick-links a").evaluateAll((tiles) => {
+    const tops = tiles.map((tile) => Math.round(tile.getBoundingClientRect().top / 4) * 4);
+    return Array.from(new Set(tops)).length;
+  });
+  expect(quickLinkRows).toBe(2);
+
   await expect(page.locator(".site-header .cart-button")).toBeVisible();
   await expect(page.getByRole("button", { name: "Menu" })).toBeVisible();
   await expect(nav).not.toBeVisible();
