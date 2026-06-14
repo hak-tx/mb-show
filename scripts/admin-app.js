@@ -1,40 +1,17 @@
 (function () {
   const config = window.MB_SHOW_SUPABASE || {};
   const status = document.querySelector("#admin-status");
-  const authForm = document.querySelector("#auth-form");
-  const email = document.querySelector("#admin-email");
   const signOut = document.querySelector("#sign-out");
   const editorPanel = document.querySelector("#editor-panel");
   const rows = document.querySelector("#sponsor-admin-rows");
-  const editor = document.querySelector("#sponsor-editor");
-  const archiveButton = document.querySelector("#archive-sponsor");
-  const deleteButton = document.querySelector("#delete-sponsor");
   const newButton = document.querySelector("#new-sponsor");
   const adminSearch = document.querySelector("#admin-search");
-  const keywordEntry = document.querySelector("#sponsor-keyword-entry");
-  const addKeywordButton = document.querySelector("#add-keyword");
-  const keywordChips = document.querySelector("#keyword-chips");
 
   const stats = {
     total: document.querySelector("#stat-total"),
     active: document.querySelector("#stat-active"),
     premium: document.querySelector("#stat-premium"),
-    archived: document.querySelector("#stat-archived"),
-  };
-
-  const fields = {
-    id: document.querySelector("#sponsor-id"),
-    name: document.querySelector("#sponsor-name"),
-    website: document.querySelector("#sponsor-website"),
-    phone: document.querySelector("#sponsor-phone"),
-    category: document.querySelector("#sponsor-category"),
-    services: document.querySelector("#sponsor-services"),
-    areas: document.querySelector("#sponsor-areas"),
-    keywords: document.querySelector("#sponsor-keywords"),
-    status: document.querySelector("#sponsor-status"),
-    tier: document.querySelector("#sponsor-tier"),
-    rank: document.querySelector("#sponsor-rank"),
-    description: document.querySelector("#sponsor-description"),
+    inactive: document.querySelector("#stat-inactive"),
   };
 
   const client =
@@ -42,12 +19,14 @@
       ? window.supabase.createClient(config.url, config.publishableKey)
       : null;
 
+  const NEW_SPONSOR_ID = "__new_sponsor__";
   let sponsorRecords = [];
-  let currentKeywords = [];
+  let editingId = "";
+  let deletePendingId = "";
   let previewMode = !client;
 
   function escapeHtml(value) {
-    return String(value || "")
+    return String(value ?? "")
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
@@ -79,6 +58,10 @@
     return [];
   }
 
+  function normalizeStatus(value) {
+    return !value || value === "active" ? "active" : "inactive";
+  }
+
   function normalizeSponsor(sponsor, index = 0) {
     const slug = sponsor.slug || slugify(sponsor.name);
     return {
@@ -92,7 +75,7 @@
       admin_keywords: normalizeArray(sponsor.admin_keywords),
       premium_tier: sponsor.premium_tier || "standard",
       premium_rank: Number(sponsor.premium_rank || 0),
-      sponsor_status: sponsor.sponsor_status || "active",
+      sponsor_status: normalizeStatus(sponsor.sponsor_status),
     };
   }
 
@@ -102,13 +85,13 @@
 
   function setStats() {
     const active = sponsorRecords.filter((sponsor) => sponsor.sponsor_status === "active").length;
-    const archived = sponsorRecords.filter((sponsor) => sponsor.sponsor_status === "archived").length;
+    const inactive = sponsorRecords.length - active;
     const premium = sponsorRecords.filter((sponsor) => sponsor.premium_tier !== "standard").length;
 
     stats.total.textContent = sponsorRecords.length;
     stats.active.textContent = active;
     stats.premium.textContent = premium;
-    stats.archived.textContent = archived;
+    stats.inactive.textContent = inactive;
   }
 
   function keywordPool(sponsor) {
@@ -117,12 +100,26 @@
     return normalizeArray(sponsor.keywords).slice(0, 8);
   }
 
-  function renderKeywordChips() {
-    fields.keywords.value = currentKeywords.join(", ");
-    keywordChips.innerHTML = currentKeywords.length
-      ? currentKeywords
+  function displayUrl(url) {
+    return String(url || "").replace(/^https?:\/\//, "").replace(/\/$/, "");
+  }
+
+  function selected(actual, expected) {
+    return actual === expected ? " selected" : "";
+  }
+
+  function renderKeywordTags(keywords, limit = 5) {
+    const visible = keywords.slice(0, limit);
+    if (!visible.length) return `<em>No keywords yet</em>`;
+    const overflow = keywords.length > limit ? [`+${keywords.length - limit} more`] : [];
+    return [...visible, ...overflow].map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("");
+  }
+
+  function renderKeywordEditor(keywords) {
+    return keywords.length
+      ? keywords
           .map(
-            (keyword) => `<button type="button" data-keyword="${escapeHtml(keyword)}">
+            (keyword) => `<button class="keyword-chip" type="button" data-action="remove-keyword" data-keyword="${escapeHtml(keyword)}">
               <span>${escapeHtml(keyword)}</span>
               <strong aria-hidden="true">x</strong>
             </button>`,
@@ -131,31 +128,8 @@
       : `<p>No extra keywords yet.</p>`;
   }
 
-  function setEditor(sponsor = {}) {
-    fields.id.value = sponsor.id || "";
-    fields.name.value = sponsor.name || "";
-    fields.website.value = sponsor.website_url || "";
-    fields.phone.value = sponsor.phone || "";
-    fields.category.value = sponsor.category || "";
-    fields.services.value = normalizeArray(sponsor.services).join(", ");
-    fields.areas.value = normalizeArray(sponsor.service_areas).join(", ");
-    fields.status.value = sponsor.sponsor_status || "active";
-    fields.tier.value = sponsor.premium_tier || "standard";
-    fields.rank.value = sponsor.premium_rank || 0;
-    fields.description.value = sponsor.description || "";
-    currentKeywords = keywordPool(sponsor);
-    renderKeywordChips();
-    archiveButton.hidden = !sponsor.id;
-    deleteButton.hidden = !sponsor.id;
-    editor.hidden = false;
-  }
-
-  function addKeywordsFromEntry() {
-    const nextKeywords = splitList(keywordEntry.value);
-    if (!nextKeywords.length) return;
-    currentKeywords = unique([...currentKeywords, ...nextKeywords]);
-    keywordEntry.value = "";
-    renderKeywordChips();
+  function editorFieldId(prefix, sponsorId) {
+    return `${prefix}-${slugify(sponsorId || "new") || "new"}`;
   }
 
   function rowMatchesSearch(sponsor) {
@@ -168,6 +142,7 @@
       sponsor.website_url,
       sponsor.sponsor_status,
       sponsor.premium_tier,
+      sponsor.description,
       ...normalizeArray(sponsor.services),
       ...normalizeArray(sponsor.service_areas),
       ...normalizeArray(sponsor.keywords),
@@ -178,46 +153,169 @@
     return text.includes(query);
   }
 
-  function statusLabel(value) {
-    if (value === "inactive") return "Paused";
-    if (value === "archived") return "Archived";
-    if (value === "draft") return "Draft";
-    return "Active";
+  function renderSponsorRow(sponsor) {
+    const keywords = unique([...normalizeArray(sponsor.admin_keywords), ...normalizeArray(sponsor.services)]);
+    const phoneWebsite = [sponsor.phone, displayUrl(sponsor.website_url)].filter(Boolean).join(" | ");
+    const isActive = sponsor.sponsor_status === "active";
+    const rowClass = editingId === sponsor.id ? " class=\"is-editing\"" : "";
+
+    return `<tr${rowClass}>
+      <td>
+        <strong>${escapeHtml(sponsor.name)}</strong>
+        <small>${escapeHtml(normalizeArray(sponsor.service_areas).join(", ") || "Service area not set")}</small>
+      </td>
+      <td>${escapeHtml(sponsor.category || "General")}</td>
+      <td>
+        <strong>${escapeHtml(sponsor.phone || "No phone")}</strong>
+        <small>${escapeHtml(displayUrl(sponsor.website_url) || "No website")}</small>
+      </td>
+      <td><div class="admin-keyword-list">${renderKeywordTags(keywords)}</div></td>
+      <td>
+        <button
+          class="status-toggle ${isActive ? "is-active" : "is-inactive"}"
+          type="button"
+          data-action="toggle-status"
+          data-id="${escapeHtml(sponsor.id)}"
+          aria-pressed="${String(isActive)}"
+        >${isActive ? "Active" : "Inactive"}</button>
+      </td>
+      <td>
+        <div class="admin-row-actions">
+          <button type="button" data-action="edit" data-id="${escapeHtml(sponsor.id)}">Edit</button>
+        </div>
+      </td>
+    </tr>`;
+  }
+
+  function renderEditorRow(sponsor = {}) {
+    const isNew = !sponsor.id;
+    const id = sponsor.id || NEW_SPONSOR_ID;
+    const suffix = slugify(id) || "new";
+    const keywords = keywordPool(sponsor);
+    const title = isNew ? "Add sponsor" : `Edit ${sponsor.name}`;
+    const statusValue = normalizeStatus(sponsor.sponsor_status);
+    const tierValue = sponsor.premium_tier || "standard";
+
+    const deleteBlock = isNew
+      ? ""
+      : deletePendingId === sponsor.id
+        ? `<div class="delete-confirm">
+            <strong>Delete ${escapeHtml(sponsor.name)}?</strong>
+            <span>This removes the sponsor record. Use Inactive instead if they may come back.</span>
+            <button class="button danger" type="button" data-action="confirm-delete" data-id="${escapeHtml(sponsor.id)}">Confirm delete</button>
+            <button class="button secondary" type="button" data-action="cancel-delete">Keep sponsor</button>
+          </div>`
+        : `<button class="quiet-danger" type="button" data-action="ask-delete" data-id="${escapeHtml(sponsor.id)}">Delete sponsor...</button>`;
+
+    return `<tr class="admin-edit-row">
+      <td colspan="6">
+        <form class="inline-sponsor-editor" data-editor-form>
+          <input type="hidden" name="id" value="${escapeHtml(id)}">
+          <input type="hidden" name="admin_keywords" value="${escapeHtml(keywords.join(", "))}">
+          <input type="hidden" name="premium_rank" value="${escapeHtml(sponsor.premium_rank || 0)}">
+
+          <div class="inline-editor-heading">
+            <div>
+              <strong>${escapeHtml(title)}</strong>
+              <span>${isNew ? "Create a new sponsor listing." : "Update this sponsor's public directory details."}</span>
+            </div>
+            <button class="button secondary" type="button" data-action="cancel-edit">Close</button>
+          </div>
+
+          <div class="form-section compact-form">
+            <h3>Business details</h3>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="${editorFieldId("sponsor-name", suffix)}">Sponsor name</label>
+                <input id="${editorFieldId("sponsor-name", suffix)}" name="name" type="text" value="${escapeHtml(sponsor.name)}" required>
+              </div>
+              <div class="form-field">
+                <label for="${editorFieldId("sponsor-phone", suffix)}">Phone number</label>
+                <input id="${editorFieldId("sponsor-phone", suffix)}" name="phone" type="text" value="${escapeHtml(sponsor.phone)}" placeholder="713-555-1212">
+              </div>
+              <div class="form-field">
+                <label for="${editorFieldId("sponsor-website", suffix)}">Website / tracking URL</label>
+                <input id="${editorFieldId("sponsor-website", suffix)}" name="website_url" type="url" value="${escapeHtml(sponsor.website_url)}" placeholder="https://sponsor.com/?utm_source=mbshow">
+                <p class="field-help">Use a tracking link when a sponsor wants lead reporting.</p>
+              </div>
+              <div class="form-field">
+                <label for="${editorFieldId("sponsor-category", suffix)}">Category</label>
+                <input id="${editorFieldId("sponsor-category", suffix)}" name="category" type="text" value="${escapeHtml(sponsor.category)}" placeholder="HVAC, Attorney, Home Improvement">
+              </div>
+              <div class="form-field">
+                <label for="${editorFieldId("sponsor-status", suffix)}">Listing status</label>
+                <select id="${editorFieldId("sponsor-status", suffix)}" name="sponsor_status">
+                  <option value="active"${selected(statusValue, "active")}>Active - show in directory</option>
+                  <option value="inactive"${selected(statusValue, "inactive")}>Inactive - hide for now</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="${editorFieldId("sponsor-tier", suffix)}">Listing level</label>
+                <select id="${editorFieldId("sponsor-tier", suffix)}" name="premium_tier">
+                  <option value="standard"${selected(tierValue, "standard")}>Standard</option>
+                  <option value="featured"${selected(tierValue, "featured")}>Featured</option>
+                  <option value="premium"${selected(tierValue, "premium")}>Premium</option>
+                  <option value="exclusive"${selected(tierValue, "exclusive")}>Exclusive</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="${editorFieldId("sponsor-areas", suffix)}">Service areas</label>
+                <input id="${editorFieldId("sponsor-areas", suffix)}" name="service_areas" type="text" value="${escapeHtml(normalizeArray(sponsor.service_areas).join(", "))}" placeholder="Houston, Greater Houston, Texas">
+              </div>
+              <div class="form-field full-span">
+                <label for="${editorFieldId("sponsor-description", suffix)}">Short description</label>
+                <textarea id="${editorFieldId("sponsor-description", suffix)}" name="description" rows="3" placeholder="Plain-English notes about what this sponsor offers.">${escapeHtml(sponsor.description)}</textarea>
+              </div>
+              <div class="form-field full-span">
+                <label for="${editorFieldId("sponsor-services", suffix)}">Services offered</label>
+                <input id="${editorFieldId("sponsor-services", suffix)}" name="services" type="text" value="${escapeHtml(normalizeArray(sponsor.services).join(", "))}" placeholder="air conditioning, plumbing, generators">
+                <p class="field-help">Separate services with commas. These help listeners find the right business.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section compact-form">
+            <h3>Search keywords</h3>
+            <div class="keyword-manager">
+              <label for="${editorFieldId("sponsor-keywords", suffix)}">Extra search keywords</label>
+              <div class="keyword-input-row">
+                <input id="${editorFieldId("sponsor-keywords", suffix)}" type="text" data-keyword-entry placeholder="patio, emergency repair, outdoor kitchen">
+                <button class="button secondary" type="button" data-action="add-keyword">Add keyword</button>
+              </div>
+              <div class="keyword-chips" data-keyword-chips aria-live="polite">${renderKeywordEditor(keywords)}</div>
+              <p class="field-help">Add words listeners might type even if the sponsor would describe themselves differently.</p>
+            </div>
+          </div>
+
+          <div class="admin-actions">
+            <div>
+              <button class="button primary" type="submit">Save listing</button>
+              <button class="button secondary" type="button" data-action="cancel-edit">Cancel</button>
+            </div>
+            <div class="admin-danger-zone">${deleteBlock}</div>
+          </div>
+        </form>
+      </td>
+    </tr>`;
   }
 
   function renderRows() {
     setStats();
     const visibleRecords = sponsorRecords.filter(rowMatchesSearch);
-    rows.innerHTML = visibleRecords.length
-      ? visibleRecords
-          .map((sponsor) => {
-            const keywords = unique([...normalizeArray(sponsor.admin_keywords), ...normalizeArray(sponsor.services)]).slice(0, 4);
-            const keywordHtml = keywords.length
-              ? keywords.map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("")
-              : `<em>No keywords</em>`;
-            const websiteLabel = sponsor.website_url ? sponsor.website_url.replace(/^https?:\/\//, "").replace(/\/$/, "") : "";
+    const rowHtml = [];
 
-            return `<tr>
-              <td>
-                <strong>${escapeHtml(sponsor.name)}</strong>
-                <small>${escapeHtml([sponsor.phone, websiteLabel].filter(Boolean).join(" | "))}</small>
-              </td>
-              <td><div class="admin-keyword-list">${keywordHtml}</div></td>
-              <td>
-                <strong>${escapeHtml(sponsor.premium_tier || "standard")}</strong>
-                <small>${escapeHtml(sponsor.category || "General")}</small>
-              </td>
-              <td><span class="status-pill is-${escapeHtml(sponsor.sponsor_status)}">${statusLabel(sponsor.sponsor_status)}</span></td>
-              <td>
-                <div class="admin-row-actions">
-                  <button type="button" data-action="edit" data-id="${escapeHtml(sponsor.id)}">Edit</button>
-                  <button type="button" data-action="delete" data-id="${escapeHtml(sponsor.id)}">Delete</button>
-                </div>
-              </td>
-            </tr>`;
-          })
-          .join("")
-      : `<tr><td colspan="5">No sponsors match that admin search.</td></tr>`;
+    if (editingId === NEW_SPONSOR_ID) {
+      rowHtml.push(renderEditorRow());
+    }
+
+    visibleRecords.forEach((sponsor) => {
+      rowHtml.push(renderSponsorRow(sponsor));
+      if (editingId === sponsor.id) rowHtml.push(renderEditorRow(sponsor));
+    });
+
+    rows.innerHTML = rowHtml.length
+      ? rowHtml.join("")
+      : `<tr><td colspan="6">No sponsors match that admin search.</td></tr>`;
   }
 
   async function loadDemoSponsors() {
@@ -226,7 +324,7 @@
     sponsorRecords = data.sponsors.map(normalizeSponsor);
     previewMode = true;
     editorPanel.hidden = false;
-    setStatus("Preview mode. Connect Supabase to save live sponsor changes.");
+    setStatus("Preview mode. Changes stay in this browser preview until Supabase is connected.");
     renderRows();
   }
 
@@ -243,6 +341,8 @@
 
     sponsorRecords = data.map(normalizeSponsor);
     previewMode = false;
+    editorPanel.hidden = false;
+    setStatus("Connected to Supabase. Changes save to the live sponsor database.");
     renderRows();
   }
 
@@ -257,23 +357,43 @@
     return nextId;
   }
 
+  function formKeywords(form) {
+    return splitList(form.elements.admin_keywords.value);
+  }
+
+  function writeFormKeywords(form, keywords) {
+    const nextKeywords = unique(keywords);
+    form.elements.admin_keywords.value = nextKeywords.join(", ");
+    form.querySelector("[data-keyword-chips]").innerHTML = renderKeywordEditor(nextKeywords);
+  }
+
+  function payloadFromForm(form) {
+    const formData = new FormData(form);
+    const name = String(formData.get("name") || "").trim();
+    return {
+      name,
+      slug: slugify(name),
+      website_url: String(formData.get("website_url") || "").trim() || null,
+      phone: String(formData.get("phone") || "").trim() || null,
+      category: String(formData.get("category") || "").trim() || "General",
+      description: String(formData.get("description") || "").trim() || null,
+      services: splitList(formData.get("services")),
+      service_areas: splitList(formData.get("service_areas")),
+      admin_keywords: splitList(formData.get("admin_keywords")),
+      premium_tier: String(formData.get("premium_tier") || "standard"),
+      premium_rank: Number(formData.get("premium_rank") || 0),
+      sponsor_status: normalizeStatus(formData.get("sponsor_status")),
+    };
+  }
+
   async function saveSponsor(event) {
     event.preventDefault();
-    const id = fields.id.value;
-    const payload = {
-      name: fields.name.value.trim(),
-      slug: slugify(fields.name.value),
-      website_url: fields.website.value.trim() || null,
-      phone: fields.phone.value.trim() || null,
-      category: fields.category.value.trim() || "General",
-      description: fields.description.value.trim() || null,
-      services: splitList(fields.services.value),
-      service_areas: splitList(fields.areas.value),
-      admin_keywords: currentKeywords,
-      premium_tier: fields.tier.value,
-      premium_rank: Number(fields.rank.value || 0),
-      sponsor_status: fields.status.value,
-    };
+    const form = event.target.closest("[data-editor-form]");
+    if (!form) return;
+
+    const formId = form.elements.id.value;
+    const id = formId === NEW_SPONSOR_ID ? "" : formId;
+    const payload = payloadFromForm(form);
 
     if (!payload.name) {
       setStatus("Add a sponsor name before saving.");
@@ -281,10 +401,11 @@
     }
 
     if (previewMode) {
-      const savedId = upsertPreviewSponsor(payload, id);
-      setStatus("Saved in preview mode. Connect Supabase when ready to save live changes.");
+      upsertPreviewSponsor(payload, id);
+      editingId = "";
+      deletePendingId = "";
+      setStatus("Saved in preview mode.");
       renderRows();
-      setEditor(sponsorRecords.find((sponsor) => sponsor.id === savedId));
       return;
     }
 
@@ -294,50 +415,60 @@
     const { error } = await query;
     setStatus(error ? error.message : "Saved.");
     if (!error) {
+      editingId = "";
+      deletePendingId = "";
       await loadLiveSponsors();
-      editor.hidden = true;
     }
   }
 
-  async function archiveSponsor() {
-    const id = fields.id.value;
+  async function toggleSponsorStatus(id) {
     if (!id) return;
+    const sponsor = sponsorRecords.find((record) => record.id === id);
+    if (!sponsor) return;
+    const nextStatus = sponsor.sponsor_status === "active" ? "inactive" : "active";
 
     if (previewMode) {
-      sponsorRecords = sponsorRecords.map((sponsor) =>
-        sponsor.id === id ? { ...sponsor, sponsor_status: "archived" } : sponsor,
+      sponsorRecords = sponsorRecords.map((record) =>
+        record.id === id ? { ...record, sponsor_status: nextStatus } : record,
       );
-      setStatus("Archived in preview mode.");
+      setStatus(`${sponsor.name} is now ${nextStatus}.`);
       renderRows();
-      setEditor(sponsorRecords.find((sponsor) => sponsor.id === id));
       return;
     }
 
-    const { error } = await client.from("sponsors").update({ sponsor_status: "archived" }).eq("id", id);
-    setStatus(error ? error.message : "Archived.");
+    const { error } = await client.from("sponsors").update({ sponsor_status: nextStatus }).eq("id", id);
+    setStatus(error ? error.message : `${sponsor.name} is now ${nextStatus}.`);
     if (!error) await loadLiveSponsors();
   }
 
   async function deleteSponsorById(id) {
     if (!id) return;
-    const sponsor = sponsorRecords.find((record) => record.id === id);
-    const name = sponsor ? sponsor.name : "this sponsor";
-    if (!window.confirm(`Delete ${name}? This removes the record.`)) return;
 
     if (previewMode) {
       sponsorRecords = sponsorRecords.filter((record) => record.id !== id);
+      editingId = "";
+      deletePendingId = "";
       setStatus("Deleted in preview mode.");
       renderRows();
-      if (fields.id.value === id) editor.hidden = true;
       return;
     }
 
     const { error } = await client.from("sponsors").delete().eq("id", id);
     setStatus(error ? error.message : "Deleted.");
     if (!error) {
+      editingId = "";
+      deletePendingId = "";
       await loadLiveSponsors();
-      if (fields.id.value === id) editor.hidden = true;
     }
+  }
+
+  function focusEditor() {
+    window.requestAnimationFrame(() => {
+      const form = rows.querySelector("[data-editor-form]");
+      const nameInput = form ? form.querySelector("input[name='name']") : null;
+      if (nameInput) nameInput.focus();
+      if (form) form.scrollIntoView({ block: "center", behavior: "auto" });
+    });
   }
 
   async function refreshSession() {
@@ -349,25 +480,14 @@
     const { data } = await client.auth.getSession();
     const signedIn = Boolean(data.session);
     signOut.hidden = !signedIn;
-    editorPanel.hidden = !signedIn;
-    setStatus(signedIn ? "Signed in." : "Sign in to manage sponsors.");
-    if (signedIn) await loadLiveSponsors();
-  }
 
-  authForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!client) {
-      setStatus("Preview mode is active. Add Supabase keys to enable email sign-in.");
+    if (signedIn) {
+      await loadLiveSponsors();
       return;
     }
 
-    const { error } = await client.auth.signInWithOtp({
-      email: email.value,
-      options: { emailRedirectTo: window.location.href },
-    });
-
-    setStatus(error ? error.message : "Check your email.");
-  });
+    await loadDemoSponsors();
+  }
 
   signOut.addEventListener("click", async () => {
     if (!client) return;
@@ -376,40 +496,94 @@
   });
 
   newButton.addEventListener("click", () => {
-    setEditor();
-    fields.name.focus();
+    editingId = NEW_SPONSOR_ID;
+    deletePendingId = "";
+    renderRows();
+    focusEditor();
   });
 
-  addKeywordButton.addEventListener("click", addKeywordsFromEntry);
-  keywordEntry.addEventListener("keydown", (event) => {
+  adminSearch.addEventListener("input", () => {
+    deletePendingId = "";
+    renderRows();
+  });
+
+  rows.addEventListener("submit", saveSponsor);
+
+  rows.addEventListener("keydown", (event) => {
     if (event.key !== "Enter") return;
+    const keywordInput = event.target.closest("[data-keyword-entry]");
+    if (!keywordInput) return;
     event.preventDefault();
-    addKeywordsFromEntry();
-  });
-
-  keywordChips.addEventListener("click", (event) => {
-    const button = event.target.closest("button[data-keyword]");
-    if (!button) return;
-    currentKeywords = currentKeywords.filter((keyword) => keyword !== button.dataset.keyword);
-    renderKeywordChips();
+    const form = keywordInput.closest("[data-editor-form]");
+    const nextKeywords = splitList(keywordInput.value);
+    if (!form || !nextKeywords.length) return;
+    writeFormKeywords(form, [...formKeywords(form), ...nextKeywords]);
+    keywordInput.value = "";
   });
 
   rows.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-action]");
     if (!button) return;
+    const action = button.dataset.action;
     const id = button.dataset.id;
-    if (button.dataset.action === "delete") {
-      deleteSponsorById(id);
+
+    if (action === "edit") {
+      editingId = id;
+      deletePendingId = "";
+      renderRows();
+      focusEditor();
       return;
     }
-    setEditor(sponsorRecords.find((sponsor) => sponsor.id === id));
-    editor.scrollIntoView({ block: "start", behavior: "smooth" });
-  });
 
-  adminSearch.addEventListener("input", renderRows);
-  archiveButton.addEventListener("click", archiveSponsor);
-  deleteButton.addEventListener("click", () => deleteSponsorById(fields.id.value));
-  editor.addEventListener("submit", saveSponsor);
+    if (action === "cancel-edit") {
+      editingId = "";
+      deletePendingId = "";
+      renderRows();
+      return;
+    }
+
+    if (action === "toggle-status") {
+      toggleSponsorStatus(id);
+      return;
+    }
+
+    if (action === "add-keyword") {
+      const form = button.closest("[data-editor-form]");
+      const input = form ? form.querySelector("[data-keyword-entry]") : null;
+      const nextKeywords = input ? splitList(input.value) : [];
+      if (!form || !nextKeywords.length) return;
+      writeFormKeywords(form, [...formKeywords(form), ...nextKeywords]);
+      input.value = "";
+      input.focus();
+      return;
+    }
+
+    if (action === "remove-keyword") {
+      const form = button.closest("[data-editor-form]");
+      if (!form) return;
+      writeFormKeywords(
+        form,
+        formKeywords(form).filter((keyword) => keyword !== button.dataset.keyword),
+      );
+      return;
+    }
+
+    if (action === "ask-delete") {
+      deletePendingId = id;
+      renderRows();
+      return;
+    }
+
+    if (action === "cancel-delete") {
+      deletePendingId = "";
+      renderRows();
+      return;
+    }
+
+    if (action === "confirm-delete") {
+      deleteSponsorById(id);
+    }
+  });
 
   refreshSession().catch((error) => {
     setStatus(error.message || "Admin workspace unavailable.");
