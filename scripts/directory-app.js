@@ -4,7 +4,7 @@
   const input = document.querySelector("#sponsor-search");
   const list = document.querySelector("#sponsor-list");
   const count = document.querySelector("#sponsor-result-count");
-  const pagination = document.querySelector("#sponsor-pagination");
+  const moreResults = document.querySelector("#sponsor-more-results");
   const stateFilter = document.querySelector("#sponsor-state-filter");
   const areaFilter = document.querySelector("#sponsor-area-filter");
   const categoryFilter = document.querySelector("#sponsor-category-filter");
@@ -41,8 +41,8 @@
     state: "",
     area: "",
     category: "",
-    page: 1,
     pageSize: 12,
+    visibleCount: 12,
     view: window.localStorage.getItem("mbSponsorView") || "list",
   };
 
@@ -159,6 +159,10 @@
     return true;
   }
 
+  function hasActiveCriteria() {
+    return Boolean(directoryState.query || directoryState.state || directoryState.area || directoryState.category);
+  }
+
   async function fetchFromSupabase() {
     if (!config.url || !config.publishableKey) return null;
 
@@ -247,7 +251,7 @@
     const suffix = parts.length ? ` ${parts.join(", ")}` : "";
 
     if (!total) return `No sponsors${suffix}`;
-    if (directoryState.query) return `Showing all ${total} sponsor${total === 1 ? "" : "s"}${suffix}`;
+    if (end >= total) return `Showing all ${total} sponsor${total === 1 ? "" : "s"}${suffix}`;
     return `Showing ${start}-${end} of ${total} sponsor${total === 1 ? "" : "s"}${suffix}`;
   }
 
@@ -268,19 +272,25 @@
   }
 
   function renderRows() {
-    const total = activeRows.length;
-    const showAllResults = Boolean(directoryState.query);
-    const effectivePageSize = showAllResults ? Math.max(total, 1) : directoryState.pageSize;
-    const pageCount = Math.max(1, Math.ceil(total / effectivePageSize));
-    directoryState.page = Math.min(directoryState.page, pageCount);
-    const startIndex = (directoryState.page - 1) * effectivePageSize;
-    const visibleRows = activeRows.slice(startIndex, startIndex + effectivePageSize);
-    const start = total ? startIndex + 1 : 0;
-    const end = total ? startIndex + visibleRows.length : 0;
+    if (!hasActiveCriteria()) {
+      count.textContent = "Search or choose a filter to see matching show sponsors.";
+      list.hidden = true;
+      list.innerHTML = "";
+      moreResults.hidden = true;
+      moreResults.innerHTML = "";
+      return;
+    }
 
-    pageSizeSelect.disabled = showAllResults;
-    pageSizeSelect.closest("label").classList.toggle("is-disabled", showAllResults);
+    const total = activeRows.length;
+    const visibleCount = Math.min(directoryState.visibleCount, total);
+    const visibleRows = activeRows.slice(0, visibleCount);
+    const start = total ? 1 : 0;
+    const end = visibleRows.length;
+
+    pageSizeSelect.disabled = false;
+    pageSizeSelect.closest("label").classList.remove("is-disabled");
     count.textContent = resultSummary(total, start, end);
+    list.hidden = false;
     list.innerHTML = visibleRows.length
       ? visibleRows.map(sponsorCard).join("")
       : `<article class="sponsor-empty">
@@ -289,33 +299,28 @@
           <p>Clear a filter or search for a related service like HVAC, patio, roofing, or attorney.</p>
         </article>`;
 
-    renderPagination(pageCount);
+    renderMoreButton(total, end);
   }
 
-  function pageButton(label, page, options = {}) {
-    const disabled = options.disabled ? " disabled" : "";
-    const current = options.current ? ' aria-current="page"' : "";
-    return `<button type="button" data-page="${page}"${disabled}${current}>${escapeHtml(label)}</button>`;
-  }
-
-  function renderPagination(pageCount) {
-    if (directoryState.query || activeRows.length <= directoryState.pageSize) {
-      pagination.innerHTML = "";
+  function renderMoreButton(total, visibleCount) {
+    if (total <= visibleCount) {
+      moreResults.hidden = true;
+      moreResults.innerHTML = "";
       return;
     }
 
-    const pages = [];
-    const first = Math.max(1, directoryState.page - 2);
-    const last = Math.min(pageCount, directoryState.page + 2);
-    pages.push(pageButton("Previous", directoryState.page - 1, { disabled: directoryState.page === 1 }));
-    for (let page = first; page <= last; page += 1) {
-      pages.push(pageButton(String(page), page, { current: page === directoryState.page }));
-    }
-    pages.push(pageButton("Next", directoryState.page + 1, { disabled: directoryState.page === pageCount }));
-    pagination.innerHTML = pages.join("");
+    const remaining = total - visibleCount;
+    moreResults.hidden = false;
+    moreResults.innerHTML = `<button type="button" data-load-more>More</button><span>${remaining} more sponsor${remaining === 1 ? "" : "s"}</span>`;
   }
 
   async function updateSponsors() {
+    if (!hasActiveCriteria()) {
+      activeRows = [];
+      renderRows();
+      return;
+    }
+
     const remoteRows = await fetchFromSupabase();
     const rows = remoteRows || sponsors;
     activeRows = filterSponsors(rows);
@@ -323,7 +328,7 @@
   }
 
   function resetPageAndUpdate() {
-    directoryState.page = 1;
+    directoryState.visibleCount = directoryState.pageSize;
     updateSponsors();
   }
 
@@ -346,12 +351,11 @@
     }).catch(() => {});
   });
 
-  pagination.addEventListener("click", (event) => {
-    const button = event.target.closest("button[data-page]");
-    if (!button || button.disabled) return;
-    directoryState.page = Number(button.dataset.page);
+  moreResults.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-load-more]");
+    if (!button) return;
+    directoryState.visibleCount += directoryState.pageSize;
     renderRows();
-    count.scrollIntoView({ behavior: "smooth", block: "nearest" });
   });
 
   input.addEventListener("input", () => {
@@ -408,6 +412,6 @@
     .catch(() => {
       count.textContent = "Sponsor listings unavailable";
       list.innerHTML = "";
-      pagination.innerHTML = "";
+      moreResults.innerHTML = "";
     });
 })();

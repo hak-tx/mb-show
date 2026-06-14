@@ -9,16 +9,22 @@ test("directory search and admin shell", async ({ page }) => {
   });
 
   await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
-  await expect(page.locator("#sponsor-list article")).toHaveCount(12);
-  await expect(page.locator("#sponsor-pagination")).toContainText("Next");
+  await expect(page.locator("#sponsor-list article")).toHaveCount(0);
+  await expect(page.locator("#sponsor-result-count")).toContainText("Search or choose a filter");
+  await expect(page.locator("#sponsor-list")).toBeHidden();
+  await expect(page.locator("#sponsor-more-results")).toBeHidden();
 
   await page.selectOption("#sponsor-state-filter", "Texas");
   await expect(page.locator("#sponsor-result-count")).toContainText("Texas");
+  await expect(page.locator("#sponsor-list article")).toHaveCount(12);
+  await expect(page.locator("#sponsor-more-results")).toContainText("More");
+  await page.getByRole("button", { name: "More" }).click();
+  await expect(page.locator("#sponsor-list article")).toHaveCount(24);
 
   await page.fill("#sponsor-search", "patio");
   await expect(page.locator("#sponsor-result-count")).toContainText("patio");
   await expect(page.locator("#sponsor-result-count")).toContainText("Showing all");
-  await expect(page.locator("#sponsor-pagination")).toBeEmpty();
+  await expect(page.locator("#sponsor-more-results")).toBeHidden();
   await expect(page.locator("#sponsor-list")).toContainText(/Outdoor|Shade|Tree|Topsoil|Lumber/);
   await expect(page.locator("#sponsor-list")).not.toContainText("Abacus Plumbing & Electrical");
 
@@ -30,6 +36,10 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-list")).toContainText(/Northwind|Trane|Uptown|Abacus|Techstar/);
   await expect(page.locator("#sponsor-list")).toContainText("Abacus Plumbing & Electrical");
   await expect(page.locator("#sponsor-list")).not.toContainText("premium listing");
+
+  await page.getByRole("button", { name: "Clear" }).click();
+  await expect(page.locator("#sponsor-list article")).toHaveCount(0);
+  await expect(page.locator("#sponsor-list")).toBeHidden();
 
   await page.goto(`${baseUrl}/admin.html`, { waitUntil: "networkidle" });
   await expect(page.locator("#admin-status")).toContainText("Supabase connection pending");

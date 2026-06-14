@@ -1,33 +1,34 @@
 **Source Visual Truth**
-- Path: `/Users/brianhakel2/.codex/attachments/2b980657-5e21-4682-94d1-0dd02baea876/codex-clipboard-ce5a89d5-7fc1-4d5a-9743-650b03d28e85.png`
-- Notes: Brian asked for a cleaner, simpler Michael Berry Show page, removal of the lower hero buttons, a light slate-blue search directory background, no premium listing treatment for now, equal Cards/List/Clear button sizing, and a better red live-times layout.
+- Path: current user request in thread, building on `/Users/brianhakel2/.codex/attachments/2b980657-5e21-4682-94d1-0dd02baea876/codex-clipboard-ce5a89d5-7fc1-4d5a-9743-650b03d28e85.png`
+- Notes: Brian asked to return the main hero section and directory to dark blue, hide sponsor results until search/filter intent starts, replace pagination with a More reveal button, and change the directory title to `Search all Michael Berry Show Sponsors you hear on air.`
 
 **Implementation Evidence**
-- Desktop viewport screenshot: `/tmp/mb-show-slate-directory-desktop-viewport.png`
-- Desktop full-page screenshot: `/tmp/mb-show-slate-directory-desktop-full.png`
-- HVAC search screenshot: `/tmp/mb-show-slate-directory-hvac.png`
-- Mobile full-page screenshot: `/tmp/mb-show-slate-directory-mobile-full.png`
-- Full-view comparison evidence: `/tmp/mb-show-slate-directory-design-compare.png`
-- Viewport: desktop 1920x1400 and mobile 390x1200
-- State: homepage default and HVAC Houston search
+- Default desktop screenshot: `/tmp/mb-show-dark-hidden-default.png`
+- Texas filter screenshot: `/tmp/mb-show-dark-state-more.png`
+- Texas filter full-page screenshot: `/tmp/mb-show-dark-state-more-full.png`
+- After More full-page screenshot: `/tmp/mb-show-dark-after-more-full.png`
+- HVAC search screenshot: `/tmp/mb-show-dark-hvac-search.png`
+- Mobile default screenshot: `/tmp/mb-show-dark-mobile-default.png`
+- Full-view comparison evidence: textual request plus desktop/mobile/state screenshots above; no new standalone mock image was supplied for this iteration.
+- Viewport: desktop 1920x1400, desktop 1440x1800, and mobile 390x1200
+- State: homepage default, Texas filter, after More, and HVAC Houston search
 
 **Findings**
 - No actionable P0/P1/P2 findings remain.
 
 **Required Fidelity Surfaces**
-- Fonts and typography: the same bold broadcast-style hierarchy is retained, with less clutter around the hero and directory controls.
-- Spacing and layout rhythm: the lower hero action row is removed, the live-time block is balanced into two clear time columns on desktop, and the directory controls align cleanly.
-- Colors and visual tokens: the sponsor directory now uses light slate blue (`rgb(231, 237, 247)`) while brand red, navy, gold, and green stay intact.
-- Image quality and asset fidelity: the official MB Show logo remains the primary asset and renders cleanly in desktop and mobile captures.
-- Copy and content: public premium-listing language is removed; search copy and sponsor directory content remain listener-facing.
+- Fonts and typography: the directory title uses the requested copy and retains the established bold show-site hierarchy.
+- Spacing and layout rhythm: the default directory now stays compact with no result cards; filtering shows 12 results first and More expands the list in-place.
+- Colors and visual tokens: the main hero card and sponsor directory are back on dark navy (`rgb(7, 20, 59)`) with gold/red/white controls.
+- Image quality and asset fidelity: the official MB Show logo remains the primary asset and stays readable against the restored dark hero panel via a white logo surface.
+- Copy and content: default result copy prompts search/filter intent, and no pagination/page-number language remains.
 
 **Patches Made**
-- Removed the lower hero `Listen Live` and `Browse Sponsors` buttons.
-- Changed the red schedule block from stacked `AND` copy to a cleaner two-time layout.
-- Changed the sponsor directory background to light slate blue.
-- Removed public premium badges, highlighted premium card styling, and premium-first sorting from the directory UI.
-- Made Cards, List, and Clear controls the same measured size: `86x44`.
-- Updated the directory test to assert no public premium label appears.
+- Changed the hero card and sponsor directory back to dark navy.
+- Updated the sponsor directory title to `Search all Michael Berry Show Sponsors you hear on air.`
+- Hid sponsor result cards until a search or filter is active.
+- Replaced page-number pagination with a More button that reveals the next batch below.
+- Updated the Playwright directory test for hidden default state, More reveal behavior, and clear-to-hidden behavior.
 
 **Open Questions**
 - None blocking. Supabase creation/import is still pending org/cost confirmation.
@@ -35,10 +36,10 @@
 **Implementation Checklist**
 - Validate HTML and JS syntax.
 - Verify directory interactions with Playwright.
-- Inspect desktop, HVAC search, mobile, and side-by-side comparison screenshots.
+- Inspect desktop, filtered, search, and mobile screenshots.
 - Deploy updated preview to Vercel.
 
 **Follow-up Polish**
-- Once Supabase is active, mirror the current public ranking behavior in the database RPC so local fallback and Supabase search stay consistent.
+- Once Supabase is active, mirror the same hidden-default and More-result behavior against the live RPC response.
 
 final result: passed
