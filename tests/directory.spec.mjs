@@ -76,6 +76,19 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-list")).not.toContainText("Techstar");
   await expect(page.locator("#sponsor-list")).not.toContainText("premium listing");
 
+  await page.fill("#sponsor-search", "who can fix my air conditioner");
+  await expect(page.locator("#sponsor-result-count")).toContainText("air conditioner");
+  await expect(page.locator("#sponsor-list")).toContainText(/Northwind|Trane|Abacus/);
+  await expect(page.locator("#sponsor-list")).not.toContainText("Fix Auto Houston");
+
+  await page.fill("#sponsor-search", "tree");
+  await expect(page.locator("#sponsor-result-count")).toContainText("tree");
+  await expect(page.locator("#sponsor-result-count")).toContainText("Showing all 3 sponsors");
+  await expect(page.locator("#sponsor-list")).toContainText("Ability Tree Service");
+  await expect(page.locator("#sponsor-list")).toContainText("ABC Home and Commercial Pest Control");
+  await expect(page.locator("#sponsor-list")).toContainText("Brookway Landscape and Irrigation");
+  await expect(page.locator("#sponsor-list")).not.toContainText("MainStreet Wealth Management");
+
   await page.fill("#sponsor-search", "plumbing");
   await expect(page.locator("#sponsor-result-count")).toContainText("plumbing");
   await expect(page.locator("#sponsor-list")).toContainText("Abacus Plumbing & Electrical");
@@ -84,6 +97,11 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-list")).not.toContainText("Daniel Dean Land Clearing & Dirt Work");
   await expect(page.locator("#sponsor-list")).not.toContainText("Generator Supercenter");
   await expect(page.locator("#sponsor-list")).not.toContainText("Sparx Engineering");
+
+  await page.fill("#sponsor-search", "pluming");
+  await expect(page.locator("#sponsor-result-count")).toContainText("pluming");
+  await expect(page.locator("#sponsor-list")).toContainText("Abacus Plumbing & Electrical");
+  await expect(page.locator("#sponsor-list")).not.toContainText("Atlas Foundation Repair");
 
   await page.fill("#sponsor-search", "");
   await expect(page.locator("#sponsor-list article")).toHaveCount(0);

@@ -10,13 +10,93 @@
 
   const synonyms = {
     patio: ["outdoor kitchen", "outdoor living", "pavers", "pool deck", "patio cover", "pergola", "shade", "backyard"],
+    backyard: ["patio", "outdoor kitchen", "outdoor living", "pavers", "shade"],
+    "outdoor kitchen": ["patio", "outdoor living", "pavers"],
+    "outdoor living": ["patio", "outdoor kitchen", "pavers", "shade"],
     hvac: ["air conditioning", "ac repair", "heating", "cooling", "trane"],
-    ac: ["hvac", "air conditioning", "cooling"],
+    ac: ["hvac", "air conditioning", "air conditioner", "cooling"],
+    "a c": ["hvac", "air conditioning", "air conditioner", "cooling"],
+    "air conditioner": ["hvac", "air conditioning", "ac repair", "cooling"],
+    "air conditioning": ["hvac", "ac repair", "cooling"],
     plumbing: ["plumber", "water heater", "drain cleaning", "sewer line", "leak repair", "repiping"],
+    plumber: ["plumbing", "water heater", "drain cleaning", "sewer line", "leak repair"],
+    "water heater": ["plumbing", "plumber", "tankless water heater"],
     generator: ["whole home generator", "standby generator", "backup generator", "backup power", "generac"],
+    "backup power": ["generator", "whole home generator", "standby generator"],
     roof: ["roofing", "roof replacement", "roof repair", "roofer"],
+    roofing: ["roof", "roof replacement", "roof repair", "roofer"],
     foundation: ["foundation repair", "slab repair", "pier and beam", "house leveling"],
+    tree: ["tree service", "tree trimming", "tree removal", "arborist", "stump grinding", "tree care"],
+    trees: ["tree", "tree service", "tree trimming", "tree removal", "arborist", "tree care"],
+    landscaping: ["landscape", "lawn care", "yard", "irrigation", "sprinkler", "tree care"],
+    landscape: ["landscaping", "lawn care", "yard", "irrigation", "sprinkler"],
+    yard: ["landscaping", "lawn care", "irrigation", "topsoil", "mulch"],
+    pests: ["pest control", "exterminator", "termites", "rodent control", "mosquito control"],
+    bugs: ["pest control", "exterminator", "termites", "mosquito control"],
+    termite: ["pest control", "termites", "termite treatment"],
+    lawyer: ["attorney", "law firm", "estate planning", "insurance claim"],
+    attorney: ["lawyer", "law firm", "estate planning", "insurance claim"],
+    wills: ["estate planning", "trusts", "probate"],
+    medicare: ["senior health", "medicare help", "medicare plans"],
+    doctor: ["primary care", "medical", "concierge doctor", "physician"],
+    dentist: ["dentistry", "cosmetic dentistry", "veneers"],
+    hearing: ["hearing aids", "audiology"],
+    investment: ["wealth management", "financial advisor", "retirement planning"],
+    retirement: ["wealth management", "financial advisor", "investment planning"],
+    car: ["auto", "vehicle", "truck", "collision repair", "car dealer"],
+    auto: ["car", "vehicle", "collision repair", "auto repair"],
+    restaurant: ["food", "tex mex", "cajun", "dining"],
+    food: ["restaurant", "tex mex", "cajun", "coffee", "liquor"],
+    "managed it": ["cybersecurity", "computer support"],
+    computer: ["managed it", "cybersecurity", "computer support"],
+    "computer support": ["managed it", "cybersecurity"],
+    gun: ["firearms", "shooting range", "self defense"],
+    guns: ["firearms", "shooting range", "self defense"],
   };
+
+  const stopTerms = new Set([
+    "a",
+    "an",
+    "and",
+    "are",
+    "best",
+    "by",
+    "can",
+    "city",
+    "company",
+    "find",
+    "fix",
+    "for",
+    "from",
+    "good",
+    "help",
+    "i",
+    "in",
+    "local",
+    "look",
+    "looking",
+    "managed",
+    "me",
+    "michael",
+    "my",
+    "near",
+    "need",
+    "of",
+    "on",
+    "or",
+    "please",
+    "service",
+    "services",
+    "show",
+    "someone",
+    "sponsor",
+    "sponsors",
+    "the",
+    "to",
+    "who",
+    "will",
+    "with",
+  ]);
 
   const stateAreaMap = {
     houston: "Texas",
@@ -71,6 +151,66 @@
     return Array.isArray(value) ? value.filter(Boolean) : [];
   }
 
+  function normalizeSearchText(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/\ba\s*\/\s*c\b/g, " ac ")
+      .replace(/&/g, " and ")
+      .replace(/[^a-z0-9]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function searchTokens(value) {
+    const normalized = normalizeSearchText(value);
+    return normalized ? normalized.split(" ") : [];
+  }
+
+  function searchTextIncludes(text, term) {
+    const normalizedTerm = normalizeSearchText(term);
+    if (!normalizedTerm) return false;
+    return ` ${text} `.includes(` ${normalizedTerm} `);
+  }
+
+  function termVariants(term) {
+    const normalized = normalizeSearchText(term);
+    const variants = [normalized];
+    if (normalized.endsWith("ies") && normalized.length > 4) variants.push(`${normalized.slice(0, -3)}y`);
+    if (normalized.endsWith("ing") && normalized.length > 5) {
+      variants.push(normalized.slice(0, -3));
+      variants.push(`${normalized.slice(0, -3)}e`);
+    }
+    if (normalized.endsWith("ers") && normalized.length > 5) variants.push(normalized.slice(0, -1));
+    if (normalized.endsWith("s") && normalized.length > 3) variants.push(normalized.slice(0, -1));
+    return unique(variants.filter(Boolean));
+  }
+
+  function editDistanceWithin(a, b, limit) {
+    if (Math.abs(a.length - b.length) > limit) return false;
+
+    const previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+    for (let i = 1; i <= a.length; i += 1) {
+      const current = [i];
+      let rowMin = current[0];
+      for (let j = 1; j <= b.length; j += 1) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        const value = Math.min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + cost);
+        current[j] = value;
+        rowMin = Math.min(rowMin, value);
+      }
+      if (rowMin > limit) return false;
+      previous.splice(0, previous.length, ...current);
+    }
+
+    return previous[b.length] <= limit;
+  }
+
+  function fuzzyTokenMatch(term, tokens) {
+    if (term.length < 5 || term.includes(" ")) return false;
+    const limit = term.length >= 8 ? 2 : 1;
+    return tokens.some((token) => token.length >= 5 && editDistanceWithin(term, token, limit));
+  }
+
   function normalizeSponsor(sponsor) {
     const serviceAreas = normalizeArray(sponsor.service_areas);
     const explicitStates = normalizeArray(sponsor.states);
@@ -100,40 +240,61 @@
   }
 
   function directQueryTerms(query) {
-    return unique(query.split(/\s+/).map((term) => term.trim()).filter(Boolean));
+    return unique(
+      searchTokens(query)
+        .flatMap(termVariants)
+        .filter((term) => term.length > 1 && !stopTerms.has(term)),
+    );
   }
 
   function searchIntentTerms(query) {
     return directQueryTerms(query).filter((term) => !locationTerms.has(term.toLowerCase()));
   }
 
-  function expandQuery(query) {
-    const lower = query.toLowerCase();
-    const extra = Object.entries(synonyms)
-      .filter(([phrase]) => lower.includes(phrase))
-      .flatMap(([, terms]) => terms);
-    return unique([...query.split(/\s+/), ...extra].map((term) => term.trim()).filter(Boolean));
+  function matchedSynonyms(query) {
+    const lower = normalizeSearchText(query);
+    return Object.entries(synonyms).filter(([phrase]) => searchTextIncludes(lower, phrase));
   }
 
-  function scoreSponsor(sponsor, terms) {
-    const text = [
-      sponsor.name,
-      sponsor.category,
-      sponsor.description,
-      sponsor.phone,
-      ...(sponsor.services || []),
-      ...(sponsor.service_areas || []),
-      ...(sponsor.states || []),
-      ...(sponsor.keywords || []),
-      ...(sponsor.admin_keywords || []),
-    ]
-      .join(" ")
-      .toLowerCase();
+  function expandQuery(query) {
+    const matches = matchedSynonyms(query);
+    const consumedTerms = new Set(matches.flatMap(([phrase]) => searchTokens(phrase)));
+    const directTerms = directQueryTerms(query).filter((term) => !consumedTerms.has(term));
+    const extra = matches.flatMap(([, terms]) => terms);
+    return unique([...directTerms, ...extra].map(normalizeSearchText).filter(Boolean));
+  }
 
-    const sponsorName = String(sponsor.name || "").toLowerCase();
-    const exactName = terms.some((term) => sponsorName.includes(term));
-    const matches = terms.reduce((score, term) => score + (text.includes(term) ? 1 : 0), 0);
-    return matches + (exactName ? 2 : 0);
+  function scoreSponsor(sponsor, terms, fuzzyTerms) {
+    const fieldGroups = [
+      { value: sponsor.name, weight: 8, fuzzy: true },
+      { value: sponsor.category, weight: 7, fuzzy: true },
+      { value: (sponsor.services || []).join(" "), weight: 6, fuzzy: true },
+      { value: [...(sponsor.keywords || []), ...(sponsor.admin_keywords || [])].join(" "), weight: 5, fuzzy: true },
+      { value: sponsor.description, weight: 3, fuzzy: true },
+      { value: [...(sponsor.service_areas || []), ...(sponsor.cities || []), ...(sponsor.states || [])].join(" "), weight: 1, fuzzy: false },
+    ];
+    const phoneDigits = String(sponsor.phone || "").replace(/\D/g, "");
+
+    return terms.reduce((score, term) => {
+      const normalizedTerm = normalizeSearchText(term);
+      if (!normalizedTerm || locationTerms.has(normalizedTerm)) return score;
+
+      const termDigits = normalizedTerm.replace(/\D/g, "");
+      const phoneScore = termDigits.length >= 3 && phoneDigits.includes(termDigits) ? 10 : 0;
+      const fieldScore = fieldGroups.reduce((fieldTotal, field) => {
+        const text = normalizeSearchText(field.value);
+        if (!text) return fieldTotal;
+        if (searchTextIncludes(text, normalizedTerm)) {
+          return fieldTotal + field.weight * (normalizedTerm.includes(" ") ? 3 : 2);
+        }
+        if (field.fuzzy && fuzzyTerms.has(normalizedTerm) && fuzzyTokenMatch(normalizedTerm, searchTokens(text))) {
+          return fieldTotal + field.weight;
+        }
+        return fieldTotal;
+      }, 0);
+
+      return score + phoneScore + fieldScore;
+    }, 0);
   }
 
   function sponsorMatchesFilters(sponsor) {
@@ -204,14 +365,12 @@
   }
 
   function filterSponsors(rows) {
-    const terms = unique([
-      ...searchIntentTerms(directoryState.query),
-      ...expandQuery(directoryState.query).filter((term) => !locationTerms.has(term.toLowerCase())),
-    ]).map((term) => term.toLowerCase());
+    const fuzzyTerms = new Set(searchIntentTerms(directoryState.query).map(normalizeSearchText));
+    const terms = expandQuery(directoryState.query).filter((term) => !locationTerms.has(term.toLowerCase()));
     const filtered = rows
       .filter(sponsorMatchesFilters)
       .filter(sponsorMatchesQueryLocation)
-      .map((sponsor) => ({ sponsor, score: scoreSponsor(sponsor, terms) }))
+      .map((sponsor) => ({ sponsor, score: scoreSponsor(sponsor, terms, fuzzyTerms) }))
       .filter((row) => !terms.length || row.score > 0)
       .sort((a, b) => {
         if (terms.length && b.score !== a.score) return b.score - a.score;
