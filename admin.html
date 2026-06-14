@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>MB Show Sponsor Admin</title>
-    <link rel="stylesheet" href="./styles.css?v=10">
+    <link rel="stylesheet" href="./styles.css?v=19">
   </head>
   <body class="admin-body">
-    <header class="topbar">
+    <header class="topbar admin-header">
       <a class="logo" href="./index.html">
         <img
           src="https://michaelberryshow.com/cdn/shop/files/Official_MB_Show_Logo_2500_x_1800_px.png?v=1682225819&width=500"
@@ -19,67 +19,162 @@
         <a href="./index.html#sponsors">Directory</a>
         <a href="https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/" target="_blank" rel="noreferrer">Source List</a>
       </nav>
-      <button class="cart-button" id="sign-out" type="button" hidden>Sign Out</button>
+      <div class="header-actions">
+        <button class="cart-button" id="sign-out" type="button" hidden>Sign Out</button>
+      </div>
     </header>
 
     <main class="admin-main">
-      <section class="content-band admin-panel">
+      <section class="content-band admin-panel admin-intro">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Sponsor admin</p>
-            <h1>Manage sponsors</h1>
+            <h1>Sponsor Directory Admin</h1>
+            <p class="admin-lede">
+              Add sponsors, update phone numbers and tracking links, manage search keywords,
+              and control which listings appear in the directory.
+            </p>
           </div>
         </div>
 
         <form class="admin-auth" id="auth-form">
-          <label for="admin-email">Email</label>
+          <label for="admin-email">Admin email</label>
           <div class="search-row">
             <input id="admin-email" type="email" autocomplete="email" placeholder="admin@example.com">
             <button type="submit">Send Link</button>
           </div>
-          <p class="admin-status" id="admin-status">Supabase connection pending.</p>
+          <p class="admin-status" id="admin-status">Loading admin workspace.</p>
         </form>
+
+        <div class="admin-summary">
+          <div>
+            <span>Total sponsors</span>
+            <strong id="stat-total">0</strong>
+          </div>
+          <div>
+            <span>Active listings</span>
+            <strong id="stat-active">0</strong>
+          </div>
+          <div>
+            <span>Premium ready</span>
+            <strong id="stat-premium">0</strong>
+          </div>
+          <div>
+            <span>Archived</span>
+            <strong id="stat-archived">0</strong>
+          </div>
+        </div>
       </section>
 
       <section class="content-band admin-panel" id="editor-panel" hidden>
         <div class="section-heading">
           <div>
             <p class="eyebrow">Listings</p>
-            <h2>Sponsor records</h2>
+            <h2>Manage sponsor listings</h2>
           </div>
-          <button class="text-link" id="new-sponsor" type="button">New Sponsor</button>
+          <button class="text-link" id="new-sponsor" type="button">Add sponsor</button>
+        </div>
+
+        <div class="admin-toolbar">
+          <label>
+            <span>Find a sponsor</span>
+            <input id="admin-search" type="search" placeholder="Search name, phone, category, or keyword">
+          </label>
+          <p>
+            Select Edit to update the public listing. Use Archive when a sponsor should stop showing,
+            or Delete only for records added by mistake.
+          </p>
         </div>
 
         <form class="sponsor-editor" id="sponsor-editor" hidden>
           <input type="hidden" id="sponsor-id">
-          <label for="sponsor-name">Name</label>
-          <input id="sponsor-name" type="text" required>
-          <label for="sponsor-website">Website</label>
-          <input id="sponsor-website" type="url">
-          <label for="sponsor-phone">Phone</label>
-          <input id="sponsor-phone" type="text">
-          <label for="sponsor-category">Category</label>
-          <input id="sponsor-category" type="text">
-          <label for="sponsor-services">Services</label>
-          <input id="sponsor-services" type="text" placeholder="comma separated">
-          <label for="sponsor-areas">Service areas</label>
-          <input id="sponsor-areas" type="text" placeholder="comma separated">
-          <label for="sponsor-keywords">Admin keywords</label>
-          <input id="sponsor-keywords" type="text" placeholder="comma separated">
-          <label for="sponsor-tier">Tier</label>
-          <select id="sponsor-tier">
-            <option value="standard">standard</option>
-            <option value="featured">featured</option>
-            <option value="premium">premium</option>
-            <option value="exclusive">exclusive</option>
-          </select>
-          <label for="sponsor-rank">Rank boost</label>
-          <input id="sponsor-rank" type="number" value="0">
-          <label for="sponsor-description">Description</label>
-          <textarea id="sponsor-description" rows="4"></textarea>
+          <div class="form-section">
+            <h3>Sponsor information</h3>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="sponsor-name">Sponsor name</label>
+                <input id="sponsor-name" type="text" required>
+              </div>
+              <div class="form-field">
+                <label for="sponsor-phone">Phone number</label>
+                <input id="sponsor-phone" type="text" placeholder="713-555-1212">
+              </div>
+              <div class="form-field">
+                <label for="sponsor-website">Website / tracking URL</label>
+                <input id="sponsor-website" type="url" placeholder="https://sponsor.com/?utm_source=mbshow">
+                <p class="field-help">Use the sponsor's tracking link here so leads can be measured.</p>
+              </div>
+              <div class="form-field">
+                <label for="sponsor-category">Primary category</label>
+                <input id="sponsor-category" type="text" placeholder="HVAC, Attorney, Home Improvement">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Listing controls</h3>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="sponsor-status">Listing status</label>
+                <select id="sponsor-status">
+                  <option value="active">Active - show in directory</option>
+                  <option value="draft">Draft - not ready yet</option>
+                  <option value="inactive">Paused - hide for now</option>
+                  <option value="archived">Archived - no longer active</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="sponsor-tier">Listing level</label>
+                <select id="sponsor-tier">
+                  <option value="standard">Standard</option>
+                  <option value="featured">Featured</option>
+                  <option value="premium">Premium</option>
+                  <option value="exclusive">Exclusive</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="sponsor-rank">Priority boost</label>
+                <input id="sponsor-rank" type="number" value="0" min="0">
+                <p class="field-help">Optional. Higher numbers can lift premium listings later.</p>
+              </div>
+              <div class="form-field">
+                <label for="sponsor-areas">Service areas</label>
+                <input id="sponsor-areas" type="text" placeholder="Houston, Greater Houston, Texas">
+              </div>
+              <div class="form-field full-span">
+                <label for="sponsor-description">Short description</label>
+                <textarea id="sponsor-description" rows="4" placeholder="Plain-English notes about what this sponsor offers."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Search words</h3>
+            <div class="form-grid">
+              <div class="form-field full-span">
+                <label for="sponsor-services">Services offered</label>
+                <input id="sponsor-services" type="text" placeholder="air conditioning, plumbing, generators">
+                <p class="field-help">Separate services with commas. These help listeners find the right business.</p>
+              </div>
+              <div class="form-field full-span">
+                <label for="sponsor-keyword-entry">Extra search keywords</label>
+                <div class="keyword-manager">
+                  <div class="keyword-input-row">
+                    <input id="sponsor-keyword-entry" type="text" placeholder="patio, emergency repair, outdoor kitchen">
+                    <button class="button secondary" type="button" id="add-keyword">Add keyword</button>
+                  </div>
+                  <div class="keyword-chips" id="keyword-chips" aria-live="polite"></div>
+                  <input id="sponsor-keywords" type="hidden">
+                </div>
+                <p class="field-help">Add words listeners might type even if the sponsor would not describe themselves that way.</p>
+              </div>
+            </div>
+          </div>
+
           <div class="admin-actions">
             <button class="button primary" type="submit">Save</button>
             <button class="button secondary" type="button" id="archive-sponsor">Archive</button>
+            <button class="button danger" type="button" id="delete-sponsor">Delete</button>
           </div>
         </form>
 
@@ -87,9 +182,9 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Tier</th>
+                <th>Sponsor</th>
+                <th>Search words</th>
+                <th>Listing</th>
                 <th>Status</th>
                 <th></th>
               </tr>

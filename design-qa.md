@@ -74,4 +74,11 @@
 **Follow-up Polish**
 - Once Supabase is active, mirror the same hidden-default and More-result behavior against the live RPC response.
 
+**Current Media/Admin Update**
+- Added an iHeart-backed bottom player that stays hidden by default, opens from Listen/Podcast actions, lazy-loads the official KTRH live widget and Michael Berry Show podcast widget, and includes an `Open on iHeart` fallback link.
+- Rebuilt `/admin.html` as a visible sponsor-management preview when Supabase keys are blank, using the local 80-sponsor JSON dataset. The same UI keeps live Supabase sign-in/save/delete paths for later.
+- Admin now supports sponsor search, add/edit/delete/archive, listing status, listing level, phone number, website/tracking URL, service areas, service text, and add/remove keyword chips.
+- Latest screenshot evidence: `/tmp/mb-show-media-default.png`, `/tmp/mb-show-media-live.png`, `/tmp/mb-show-media-podcast.png`, `/tmp/mb-show-media-mobile-default.png`, `/tmp/mb-show-media-mobile-live.png`, `/tmp/mb-show-admin-top.png`, `/tmp/mb-show-admin-desktop-viewport.png`, `/tmp/mb-show-admin-mobile-top.png`, `/tmp/mb-show-admin-mobile-viewport.png`.
+- Verification: `npx --yes html-validate@latest index.html admin.html`, `node --check scripts/admin-app.js && node --check scripts/media-player.js`, `git diff --check`, and `BASE_URL=http://127.0.0.1:4182 npx playwright test tests/directory.spec.mjs --reporter=line` all passed.
+
 final result: passed

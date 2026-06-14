@@ -13,7 +13,7 @@
       rel="icon"
       href="https://michaelberryshow.com/cdn/shop/files/mb-logo-300x276.png?crop=center&height=32&v=1683575562&width=32"
     >
-    <link rel="stylesheet" href="./styles.css?v=18">
+    <link rel="stylesheet" href="./styles.css?v=19">
   </head>
   <body>
     <header class="topbar site-header">
@@ -30,7 +30,7 @@
       </div>
 
       <nav class="primary-nav" id="primary-nav" aria-label="Primary">
-        <a href="https://ktrh.iheart.com/featured/michael-berry/" target="_blank" rel="noreferrer">Listen</a>
+        <a href="https://www.iheart.com/live/newsradio-740-ktrh-2285/" target="_blank" rel="noreferrer" data-player-open="live">Listen</a>
         <a href="#sponsors">Sponsors</a>
         <a href="#merch">Merch</a>
         <a href="https://michaelberryshow.com/pages/email-michael-berry" target="_blank" rel="noreferrer">Contact</a>
@@ -63,11 +63,11 @@
           </div>
 
           <div class="quick-links">
-            <a href="https://ktrh.iheart.com/featured/michael-berry/" target="_blank" rel="noreferrer">
+            <a href="https://www.iheart.com/live/newsradio-740-ktrh-2285/" target="_blank" rel="noreferrer" data-player-open="live">
               <strong>Listen Live</strong>
               <span>KTRH show page</span>
             </a>
-            <a href="https://www.iheart.com/podcast/44-the-michael-berry-show-27764850/" target="_blank" rel="noreferrer">
+            <a href="https://www.iheart.com/podcast/44-the-michael-berry-show-27764850/" target="_blank" rel="noreferrer" data-player-open="podcast">
               <strong>Podcast</strong>
               <span>The Michael Berry Show</span>
             </a>
@@ -177,7 +177,31 @@
       <a href="https://www.instagram.com/michaelberryshow/" target="_blank" rel="noreferrer">Instagram</a>
     </footer>
 
+    <section class="media-dock" id="media-player" aria-label="Michael Berry Show audio player" data-player-state="hidden" hidden>
+      <div class="media-dock-bar">
+        <div class="media-dock-copy">
+          <span id="media-label">Listen</span>
+          <strong id="media-title">KTRH 740 AM and The Michael Berry Show</strong>
+        </div>
+        <div class="media-dock-actions">
+          <button type="button" data-player-open="live" aria-pressed="false">KTRH Live</button>
+          <button type="button" data-player-open="podcast" aria-pressed="false">Podcast</button>
+          <a id="media-open-link" href="https://ktrh.iheart.com/featured/michael-berry/" target="_blank" rel="noreferrer">Open on iHeart</a>
+          <button type="button" id="media-close">Hide</button>
+        </div>
+      </div>
+      <div class="media-frame-wrap" id="media-frame-wrap" hidden>
+        <iframe
+          id="media-frame"
+          title="iHeart audio player"
+          allow="autoplay"
+          loading="lazy"
+        ></iframe>
+      </div>
+    </section>
+
     <script src="./scripts/site-nav.js"></script>
+    <script src="./scripts/media-player.js"></script>
     <script src="./config.js"></script>
     <script src="./scripts/directory-app.js"></script>
   </body>

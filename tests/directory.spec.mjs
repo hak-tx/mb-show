@@ -26,6 +26,19 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-view-controls")).toBeHidden();
   await expect(page.getByRole("link", { name: "Full Sponsor list" })).toBeVisible();
   await expect(page.locator("#merch h2")).toContainText("New releases from the Michael Berry Show store.");
+  await expect(page.locator("#media-player")).toBeHidden();
+  await expect(page.locator("#media-player")).toHaveAttribute("data-player-state", "hidden");
+
+  await page.locator(".quick-links a[data-player-open='live']").click();
+  await expect(page.locator("#media-frame-wrap")).toBeVisible();
+  await expect(page.locator("#media-title")).toContainText("NewsRadio 740 KTRH live");
+  await expect(page.locator("#media-frame")).toHaveAttribute("src", /newsradio-740-ktrh-2285/);
+
+  await page.locator("#media-player button[data-player-open='podcast']").click();
+  await expect(page.locator("#media-title")).toContainText("The Michael Berry Show podcast");
+  await expect(page.locator("#media-frame")).toHaveAttribute("src", /44-the-michael-berry-show-27764850/);
+  await page.getByRole("button", { name: "Hide" }).click();
+  await expect(page.locator("#media-player")).toBeHidden();
 
   await page.fill("#sponsor-search", "houston");
   await expect(page.locator("#sponsor-result-count")).toContainText("houston");
@@ -56,7 +69,22 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-list")).toBeHidden();
 
   await page.goto(`${baseUrl}/admin.html`, { waitUntil: "networkidle" });
-  await expect(page.locator("#admin-status")).toContainText("Supabase connection pending");
+  await expect(page.locator("#admin-status")).toContainText("Preview mode");
+  await expect(page.locator("#editor-panel")).toBeVisible();
+  await expect(page.locator("#stat-total")).toContainText("80");
+  await expect(page.getByRole("button", { name: "Add sponsor" })).toBeVisible();
+  await expect(page.getByLabel("Find a sponsor")).toBeVisible();
+
+  await page.getByRole("button", { name: "Edit" }).first().click();
+  await expect(page.locator("#sponsor-editor")).toBeVisible();
+  await expect(page.getByLabel("Sponsor name")).not.toHaveValue("");
+  await expect(page.getByLabel("Phone number")).toBeVisible();
+  await expect(page.getByLabel("Website / tracking URL")).toBeVisible();
+  await page.getByLabel("Extra search keywords").fill("whole house generator");
+  await page.getByRole("button", { name: "Add keyword" }).click();
+  await expect(page.locator("#keyword-chips")).toContainText("whole house generator");
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.locator("#admin-status")).toContainText("Saved in preview mode");
   expect(errors).toEqual([]);
 });
 
