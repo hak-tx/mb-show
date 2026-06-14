@@ -4,6 +4,7 @@
 - Latest note: Brian asked to hide Admin from the public menu, rename Email to Contact, rename Email List to Join List, remove the sticky header, and collapse the mobile nav while keeping Cart accessible at the top right.
 - Latest visual note: Brian supplied mobile screenshots at `/Users/brianhakel2/.codex/attachments/a287d2ed-0921-4a0c-b5ed-9776f6924c99/codex-clipboard-2cdb4651-dc43-4478-9274-2a19256d05fd.png` and `/Users/brianhakel2/.codex/attachments/b387440c-2002-4ed1-830d-fe6ee99dce8c/codex-clipboard-6f62efbd-102c-416e-b3c4-c00bd287562f.png`, asking for the four main buttons to become a 2x2 mobile grid and for the sponsor directory controls to use fewer competing colors for an older, less tech-savvy audience.
 - Current visual note: Brian supplied `/Users/brianhakel2/.codex/attachments/97ed7307-801a-4220-9175-b8c157e7acfa/codex-clipboard-da84f904-fc18-4cf2-b526-956cf2e00aa1.png` and asked to move the Full KTRH list button to the bottom of the sponsor section, make search the dominant focus, remove city from the placeholder, remove filters, and add a text hint for the Cards/List view buttons.
+- Latest copy/state note: Brian supplied `/Users/brianhakel2/.codex/attachments/c3e80f93-4cd4-401f-af34-b9cf62075742/codex-clipboard-b7dca1c2-c5a1-4841-9dfa-b3e173b8e500.png` and asked to hide the Cards/List view control until search starts, rename the KTRH source link to `Full Sponsor list`, and simplify the merch heading to `New releases from the Michael Berry Show store.`
 
 **Implementation Evidence**
 - Default desktop screenshot: `/tmp/mb-show-dark-hidden-default.png`
@@ -22,9 +23,12 @@
 - Mobile search-focus results screenshot: `/tmp/mb-show-mobile-search-focus-results.png`
 - Desktop search-focus default screenshot: `/tmp/mb-show-desktop-search-focus-default.png`
 - Mobile source/implementation comparison: `/tmp/mb-show-mobile-search-focus-comparison.png`
+- Mobile hidden-view default screenshot: `/tmp/mb-show-mobile-hide-view-default.png`
+- Mobile hidden-view results screenshot: `/tmp/mb-show-mobile-hide-view-results.png`
+- Desktop hidden-view default screenshot: `/tmp/mb-show-desktop-hide-view-default.png`
 - Full-view comparison evidence: current mobile source screenshot plus desktop/mobile implementation screenshots above.
 - Viewport: desktop 1920x1400, desktop 1440x1800, mobile 390x1200, and mobile 390x1300
-- State: homepage default, prior Texas filter, after More, HVAC Houston search, desktop nav, mobile collapsed nav, mobile open nav, search-only default, and search-only results
+- State: homepage default, prior Texas filter, after More, HVAC Houston search, desktop nav, mobile collapsed nav, mobile open nav, search-only default, search-only results, hidden-view default, and hidden-view results
 
 **Findings**
 - No actionable P0/P1/P2 findings remain.
@@ -34,7 +38,7 @@
 - Spacing and layout rhythm: the default directory now stays compact with no result cards; search shows matching results first and More expands long result sets in-place. Mobile header stays compact at 84px collapsed and expands only after Menu is pressed.
 - Colors and visual tokens: the main hero card and sponsor directory remain dark navy (`rgb(7, 20, 59)`), while the directory form sits in a light panel with red reserved for the primary Search action, navy for selected view controls, and neutral white/gray for secondary surfaces.
 - Image quality and asset fidelity: the official MB Show logo remains the primary asset and stays readable against the restored dark hero panel via a white logo surface.
-- Copy and content: default result copy prompts search intent only, no filter or pagination/page-number language remains, Admin is absent from the public nav, and public nav labels read Contact and Join List.
+- Copy and content: default result copy prompts search intent only, Cards/List view controls stay hidden until search starts, no filter or pagination/page-number language remains, Admin is absent from the public nav, and public nav labels read Contact and Join List.
 
 **Patches Made**
 - Changed the hero card and sponsor directory back to dark navy.
@@ -54,6 +58,9 @@
 - Made the search row more prominent with a larger input, larger Search button, stronger border, and subtle elevation.
 - Changed the search placeholder to `Search service or sponsor`.
 - Added `View results as` copy above the Cards/List buttons on mobile and beside them on desktop.
+- Hid the Cards/List view controls until a search query is active.
+- Renamed `Full KTRH list` to `Full Sponsor list`.
+- Updated the merch section title to `New releases from the Michael Berry Show store.`
 
 **Open Questions**
 - None blocking. Supabase creation/import is still pending org/cost confirmation.

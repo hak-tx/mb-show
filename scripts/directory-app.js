@@ -5,6 +5,7 @@
   const list = document.querySelector("#sponsor-list");
   const count = document.querySelector("#sponsor-result-count");
   const moreResults = document.querySelector("#sponsor-more-results");
+  const viewControls = document.querySelector("#sponsor-view-controls");
   const viewButtons = Array.from(document.querySelectorAll("[data-view]"));
 
   const synonyms = {
@@ -251,6 +252,7 @@
 
   function renderRows() {
     if (!hasActiveCriteria()) {
+      viewControls.hidden = true;
       count.textContent = "Search to see matching show sponsors.";
       list.hidden = true;
       list.innerHTML = "";
@@ -265,6 +267,7 @@
     const start = total ? 1 : 0;
     const end = visibleRows.length;
 
+    viewControls.hidden = false;
     count.textContent = resultSummary(total, start, end);
     list.hidden = false;
     list.innerHTML = visibleRows.length

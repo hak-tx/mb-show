@@ -23,9 +23,13 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-category-filter")).toHaveCount(0);
   await expect(page.locator("#sponsor-clear-filters")).toHaveCount(0);
   await expect(page.locator(".view-hint")).toContainText("View results as");
+  await expect(page.locator("#sponsor-view-controls")).toBeHidden();
+  await expect(page.getByRole("link", { name: "Full Sponsor list" })).toBeVisible();
+  await expect(page.locator("#merch h2")).toContainText("New releases from the Michael Berry Show store.");
 
   await page.fill("#sponsor-search", "houston");
   await expect(page.locator("#sponsor-result-count")).toContainText("houston");
+  await expect(page.locator("#sponsor-view-controls")).toBeVisible();
   await expect(page.locator("#sponsor-list article")).toHaveCount(12);
   await expect(page.locator("#sponsor-more-results")).toContainText("More");
   await page.getByRole("button", { name: "More" }).click();
