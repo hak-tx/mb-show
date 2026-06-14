@@ -96,7 +96,9 @@ test("directory search and admin shell", async ({ page }) => {
 
   await page.fill("#sponsor-search", "attic insulation");
   await expect(page.locator("#sponsor-result-count")).toContainText("attic insulation");
-  await expect(page.locator("#sponsor-list")).toContainText("Abacus Plumbing & Electrical");
+  await expect(page.locator("#sponsor-list")).toContainText("All Star Construction");
+  await expect(page.locator("#sponsor-list")).toContainText(/Allied|Design Tech|McCauley/);
+  await expect(page.locator("#sponsor-list")).not.toContainText("Abacus Plumbing & Electrical");
 
   await page.fill("#sponsor-search", "plumbing");
   await expect(page.locator("#sponsor-result-count")).toContainText("plumbing");
