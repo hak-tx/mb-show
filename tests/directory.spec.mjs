@@ -63,7 +63,7 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-result-count")).toContainText("patio");
   await expect(page.locator("#sponsor-result-count")).toContainText("Showing all");
   await expect(page.locator("#sponsor-more-results")).toBeHidden();
-  await expect(page.locator("#sponsor-list")).toContainText(/Outdoor|Shade|Tree|Topsoil|Lumber/);
+  await expect(page.locator("#sponsor-list")).toContainText(/Outdoor|Shade|Topsoil|Sunflower/);
   await expect(page.locator("#sponsor-list")).not.toContainText("Abacus Plumbing & Electrical");
 
   await page.getByRole("button", { name: "List" }).click();
@@ -71,9 +71,19 @@ test("directory search and admin shell", async ({ page }) => {
 
   await page.fill("#sponsor-search", "hvac houston");
   await expect(page.locator("#sponsor-result-count")).toContainText("hvac houston");
-  await expect(page.locator("#sponsor-list")).toContainText(/Northwind|Trane|Uptown|Abacus|Techstar/);
+  await expect(page.locator("#sponsor-list")).toContainText(/Northwind|Trane|Abacus/);
   await expect(page.locator("#sponsor-list")).toContainText("Abacus Plumbing & Electrical");
+  await expect(page.locator("#sponsor-list")).not.toContainText("Techstar");
   await expect(page.locator("#sponsor-list")).not.toContainText("premium listing");
+
+  await page.fill("#sponsor-search", "plumbing");
+  await expect(page.locator("#sponsor-result-count")).toContainText("plumbing");
+  await expect(page.locator("#sponsor-list")).toContainText("Abacus Plumbing & Electrical");
+  await expect(page.locator("#sponsor-list")).not.toContainText("Atlas Foundation Repair");
+  await expect(page.locator("#sponsor-list")).not.toContainText("Brookway Landscape and Irrigation");
+  await expect(page.locator("#sponsor-list")).not.toContainText("Daniel Dean Land Clearing & Dirt Work");
+  await expect(page.locator("#sponsor-list")).not.toContainText("Generator Supercenter");
+  await expect(page.locator("#sponsor-list")).not.toContainText("Sparx Engineering");
 
   await page.fill("#sponsor-search", "");
   await expect(page.locator("#sponsor-list article")).toHaveCount(0);

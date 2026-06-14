@@ -9,13 +9,13 @@
   const viewButtons = Array.from(document.querySelectorAll("[data-view]"));
 
   const synonyms = {
-    patio: ["outdoor kitchen", "outdoor living", "pavers", "landscape", "shade", "backyard"],
+    patio: ["outdoor kitchen", "outdoor living", "pavers", "pool deck", "patio cover", "pergola", "shade", "backyard"],
     hvac: ["air conditioning", "ac repair", "heating", "cooling", "trane"],
     ac: ["hvac", "air conditioning", "cooling"],
-    plumbing: ["plumber", "water heater", "drain", "leak"],
-    generator: ["backup power", "electrical"],
-    roof: ["roofing", "siding", "home improvement"],
-    foundation: ["foundation repair", "slab"],
+    plumbing: ["plumber", "water heater", "drain cleaning", "sewer line", "leak repair", "repiping"],
+    generator: ["whole home generator", "standby generator", "backup generator", "backup power", "generac"],
+    roof: ["roofing", "roof replacement", "roof repair", "roofer"],
+    foundation: ["foundation repair", "slab repair", "pier and beam", "house leveling"],
   };
 
   const stateAreaMap = {
