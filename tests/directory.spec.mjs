@@ -13,6 +13,10 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(desktopNav).not.toContainText("Admin");
   await expect(desktopNav.getByRole("link", { name: "Contact" })).toBeVisible();
   await expect(desktopNav.getByRole("link", { name: "Join List" })).toBeVisible();
+  await expect(page.locator(".live-strip")).toContainText("Weekdays (times in CST)");
+  await expect(page.locator(".live-times strong")).toHaveCount(2);
+  await expect(page.getByRole("link", { name: /Send Michael an email/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Get Michael's Daily Email Update/i })).toBeVisible();
   await expect(page.locator("#sponsor-list article")).toHaveCount(0);
   await expect(page.locator("#sponsor-result-count")).toContainText("Search to see matching show sponsors");
   await expect(page.locator("#sponsor-list")).toBeHidden();
@@ -179,6 +183,7 @@ test("mobile header keeps nav collapsed", async ({ page }) => {
   await expect(page.locator(".site-header .cart-button")).toBeVisible();
   await expect(page.getByRole("button", { name: "Menu" })).toBeVisible();
   await expect(nav).not.toBeVisible();
+  await expect(page.locator(".email-tile")).toBeVisible();
 
   await page.getByRole("button", { name: "Menu" }).click();
   await expect(nav).toBeVisible();

@@ -256,7 +256,7 @@ h1 {
 
 .broadcast-card {
   display: grid;
-  grid-template-rows: minmax(190px, auto) 1fr;
+  grid-template-rows: auto auto 1fr;
   gap: 12px;
   min-height: 430px;
   padding: clamp(18px, 3vw, 30px);
@@ -264,11 +264,11 @@ h1 {
 }
 
 .live-strip {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 190px;
-  padding: clamp(22px, 3vw, 30px);
+  display: grid;
+  align-content: stretch;
+  min-height: 150px;
+  padding: 0;
+  overflow: hidden;
   border-radius: 8px;
   color: var(--white);
   background: var(--red);
@@ -286,11 +286,25 @@ h1 {
 }
 
 .live-strip span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  padding: 14px clamp(18px, 2.5vw, 26px) 6px;
   color: rgba(255, 255, 255, 0.74);
 }
 
+.live-strip small {
+  color: rgba(255, 255, 255, 0.78);
+  font: inherit;
+  text-transform: none;
+}
+
 .live-strip strong {
-  display: block;
+  display: flex;
+  align-items: center;
+  min-height: 92px;
+  padding: 0 clamp(18px, 2.5vw, 26px) 18px;
   font-size: clamp(40px, 4rem, 58px);
   line-height: 0.94;
 }
@@ -298,8 +312,32 @@ h1 {
 .live-times {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  align-items: end;
+  gap: 0;
+  align-items: stretch;
+}
+
+.live-times strong + strong {
+  border-left: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.email-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  padding: 16px 18px;
+  border-radius: 8px;
+  color: var(--white);
+  background: var(--ktrh-green);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.email-tile strong {
+  display: block;
+  font-size: clamp(18px, 2vw, 24px);
+  line-height: 1.05;
+  text-align: center;
+  text-transform: none;
 }
 
 .quick-links {
@@ -349,9 +387,15 @@ h1 {
 
 .quick-links strong {
   display: block;
-  font-size: clamp(20px, 2.2vw, 26px);
-  line-height: 1;
+  font-size: clamp(19px, 2vw, 25px);
+  line-height: 1.04;
   text-transform: uppercase;
+}
+
+.quick-links a:nth-child(3) strong {
+  font-size: clamp(16px, 1.65vw, 22px);
+  line-height: 1.08;
+  text-transform: none;
 }
 
 .content-band {
@@ -1366,7 +1410,7 @@ h1 {
   }
 
   .broadcast-card {
-    grid-template-rows: auto auto;
+    grid-template-rows: auto auto auto;
   }
 
   .sponsor-list,
@@ -1463,13 +1507,36 @@ h1 {
   }
 
   .live-times {
-    grid-template-columns: 1fr;
-    gap: 4px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .live-strip {
+    min-height: 136px;
+  }
+
+  .live-strip span {
+    padding: 13px 14px 6px;
+    font-size: 11px;
+  }
+
+  .live-strip strong {
+    min-height: 82px;
+    padding: 0 14px 14px;
+    font-size: clamp(34px, 9.4vw, 46px);
+  }
+
+  .email-tile {
+    min-height: 64px;
+    padding: 14px;
+  }
+
+  .email-tile strong {
+    font-size: 18px;
   }
 
   .quick-links {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: repeat(2, minmax(104px, 1fr));
+    grid-template-rows: repeat(2, minmax(112px, 1fr));
     gap: 8px;
   }
 
@@ -1480,6 +1547,11 @@ h1 {
   .quick-links strong {
     font-size: 18px;
     line-height: 1.05;
+  }
+
+  .quick-links a:nth-child(3) strong {
+    font-size: 15px;
+    line-height: 1.12;
   }
 
   .quick-links span {
