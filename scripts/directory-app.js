@@ -6,7 +6,6 @@
   const count = document.querySelector("#sponsor-result-count");
   const moreResults = document.querySelector("#sponsor-more-results");
   const viewControls = document.querySelector("#sponsor-view-controls");
-  const viewButtons = Array.from(document.querySelectorAll("[data-view]"));
 
   const synonyms = {
     patio: ["outdoor kitchen", "outdoor living", "pavers", "pool deck", "patio cover", "pergola", "shade", "backyard"],
@@ -133,9 +132,6 @@
     state: "",
     area: "",
     category: "",
-    pageSize: 12,
-    visibleCount: 12,
-    view: window.localStorage.getItem("mbSponsorView") || "list",
     resultMode: "match",
   };
 
@@ -304,10 +300,6 @@
     return true;
   }
 
-  function hasActiveCriteria() {
-    return Boolean(directoryState.query);
-  }
-
   async function fetchFromSupabase() {
     if (!config.url || !config.publishableKey) return null;
 
@@ -339,17 +331,8 @@
   }
 
   function renderFilters() {
-    syncViewButtons();
-  }
-
-  function syncViewButtons() {
-    list.classList.toggle("list-view", directoryState.view === "list");
-    list.classList.toggle("card-view", directoryState.view !== "list");
-    viewButtons.forEach((button) => {
-      const selected = button.dataset.view === directoryState.view;
-      button.classList.toggle("is-active", selected);
-      button.setAttribute("aria-pressed", String(selected));
-    });
+    list.classList.remove("list-view");
+    list.classList.add("card-view");
   }
 
   function filterSponsors(rows) {
@@ -398,35 +381,46 @@
     const areas = (sponsor.service_areas || []).slice(0, 4).join(" · ");
     const states = (sponsor.states || []).join(" · ");
     const meta = [areas, states && `State: ${states}`].filter(Boolean).join(" | ");
-    return `<article>
-      <div>
-        <span>${escapeHtml(sponsor.category || "Sponsor")}</span>
-        <h3>${escapeHtml(sponsor.name)}</h3>
-        <p>${escapeHtml(sponsor.phone || services || "Show sponsor")}</p>
-        <p class="sponsor-meta">${escapeHtml(meta || services)}</p>
+    const detailsId = `sponsor-details-${escapeHtml(sponsor.slug || slugify(sponsor.name))}`;
+    const website = sponsor.website_url || "";
+    const websiteLink = website
+      ? `<a class="sponsor-card-website" href="${escapeHtml(website)}" target="_blank" rel="noreferrer" data-sponsor-slug="${escapeHtml(sponsor.slug || "")}">Website</a>`
+      : `<span class="sponsor-card-website is-disabled">No website</span>`;
+
+    return `<article class="sponsor-card" data-sponsor-card>
+      <button class="sponsor-card-toggle" type="button" aria-expanded="false" aria-controls="${detailsId}">
+        <span class="sponsor-card-name">${escapeHtml(sponsor.name)}</span>
+        <span class="sponsor-card-phone">${escapeHtml(sponsor.phone || "Phone unavailable")}</span>
+        <span class="sponsor-card-cue">Details</span>
+      </button>
+      ${websiteLink}
+      <div class="sponsor-details" id="${detailsId}" hidden>
+        <p>${escapeHtml(sponsor.description || services || "Michael Berry Show sponsor.")}</p>
+        <dl>
+          <div>
+            <dt>Category</dt>
+            <dd>${escapeHtml(sponsor.category || "Sponsor")}</dd>
+          </div>
+          <div>
+            <dt>Services</dt>
+            <dd>${escapeHtml(services || "Show sponsor")}</dd>
+          </div>
+          <div>
+            <dt>Service area</dt>
+            <dd>${escapeHtml(meta || "See sponsor website")}</dd>
+          </div>
+        </dl>
       </div>
-      <a href="${escapeHtml(sponsor.website_url)}" target="_blank" rel="noreferrer" data-sponsor-slug="${escapeHtml(sponsor.slug || "")}">Visit website</a>
     </article>`;
   }
 
   function renderRows() {
-    if (!hasActiveCriteria()) {
-      viewControls.hidden = true;
-      count.textContent = "Search to see matching show sponsors.";
-      list.hidden = true;
-      list.innerHTML = "";
-      moreResults.hidden = true;
-      moreResults.innerHTML = "";
-      return;
-    }
-
     const total = activeRows.length;
-    const visibleCount = Math.min(directoryState.visibleCount, total);
-    const visibleRows = activeRows.slice(0, visibleCount);
+    const visibleRows = activeRows;
     const start = total ? 1 : 0;
     const end = visibleRows.length;
 
-    viewControls.hidden = false;
+    viewControls.hidden = true;
     count.textContent = resultSummary(total, start, end);
     list.hidden = false;
     list.innerHTML = visibleRows.length
@@ -437,28 +431,11 @@
           <p>Search for a related service like HVAC, patio, roofing, or attorney.</p>
         </article>`;
 
-    renderMoreButton(total, end);
-  }
-
-  function renderMoreButton(total, visibleCount) {
-    if (total <= visibleCount) {
-      moreResults.hidden = true;
-      moreResults.innerHTML = "";
-      return;
-    }
-
-    const remaining = total - visibleCount;
-    moreResults.hidden = false;
-    moreResults.innerHTML = `<button type="button" data-load-more>More</button><span>${remaining} more sponsor${remaining === 1 ? "" : "s"}</span>`;
+    moreResults.hidden = true;
+    moreResults.innerHTML = "";
   }
 
   async function updateSponsors() {
-    if (!hasActiveCriteria()) {
-      activeRows = [];
-      renderRows();
-      return;
-    }
-
     const remoteRows = await fetchFromSupabase();
     const rows = remoteRows || sponsors;
     activeRows = filterSponsors(rows);
@@ -466,34 +443,41 @@
   }
 
   function resetPageAndUpdate() {
-    directoryState.visibleCount = directoryState.pageSize;
     updateSponsors();
   }
 
   list.addEventListener("click", async (event) => {
     const link = event.target.closest("a[data-sponsor-slug]");
-    if (!link || !config.url || !config.publishableKey) return;
-    await fetch(`${config.url}/rest/v1/sponsor_leads`, {
-      method: "POST",
-      headers: {
-        apikey: config.publishableKey,
-        authorization: `Bearer ${config.publishableKey}`,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        search_query: directoryState.query,
-        lead_type: "click",
-        metadata: { sponsor_slug: link.dataset.sponsorSlug },
-      }),
-      keepalive: true,
-    }).catch(() => {});
-  });
+    if (link) {
+      if (!config.url || !config.publishableKey) return;
+      await fetch(`${config.url}/rest/v1/sponsor_leads`, {
+        method: "POST",
+        headers: {
+          apikey: config.publishableKey,
+          authorization: `Bearer ${config.publishableKey}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          search_query: directoryState.query,
+          lead_type: "click",
+          metadata: { sponsor_slug: link.dataset.sponsorSlug },
+        }),
+        keepalive: true,
+      }).catch(() => {});
+      return;
+    }
 
-  moreResults.addEventListener("click", (event) => {
-    const button = event.target.closest("button[data-load-more]");
-    if (!button) return;
-    directoryState.visibleCount += directoryState.pageSize;
-    renderRows();
+    if (event.target.closest(".sponsor-details")) return;
+    const card = event.target.closest("[data-sponsor-card]");
+    if (!card) return;
+    const button = card.querySelector(".sponsor-card-toggle");
+    const details = card.querySelector(".sponsor-details");
+    const cue = card.querySelector(".sponsor-card-cue");
+    const expanded = button.getAttribute("aria-expanded") === "true";
+    button.setAttribute("aria-expanded", String(!expanded));
+    card.classList.toggle("is-expanded", !expanded);
+    details.hidden = expanded;
+    if (cue) cue.textContent = expanded ? "Details" : "Hide details";
   });
 
   input.addEventListener("input", () => {
@@ -505,14 +489,6 @@
     event.preventDefault();
     directoryState.query = input.value.trim();
     resetPageAndUpdate();
-  });
-
-  viewButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      directoryState.view = button.dataset.view;
-      window.localStorage.setItem("mbSponsorView", directoryState.view);
-      syncViewButtons();
-    });
   });
 
   loadFallbackSponsors()

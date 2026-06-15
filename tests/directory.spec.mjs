@@ -19,17 +19,24 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator(".live-strip .time-zone").first()).toContainText("CST");
   await expect(page.getByRole("link", { name: /Send Michael an email/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /Get Michael's Daily Email Update/i })).toBeVisible();
-  await expect(page.locator("#sponsor-list article")).toHaveCount(0);
-  await expect(page.locator("#sponsor-result-count")).toContainText("Search to see matching show sponsors");
-  await expect(page.locator("#sponsor-list")).toBeHidden();
+  await expect(page.locator("#sponsor-result-count")).toContainText("Showing all 80 sponsors");
+  await expect(page.locator("#sponsor-list")).toBeVisible();
+  await expect(page.locator("#sponsor-list article")).toHaveCount(80);
   await expect(page.locator("#sponsor-more-results")).toBeHidden();
   await expect(page.locator(".directory-shell")).toHaveCSS("background-color", "rgb(247, 249, 253)");
-  await expect(page.locator(".view-toggle button.is-active")).toHaveCSS("background-color", "rgb(7, 20, 59)");
   await expect(page.locator("#sponsor-state-filter")).toHaveCount(0);
   await expect(page.locator("#sponsor-category-filter")).toHaveCount(0);
   await expect(page.locator("#sponsor-clear-filters")).toHaveCount(0);
-  await expect(page.locator(".view-hint")).toContainText("View results as");
   await expect(page.locator("#sponsor-view-controls")).toBeHidden();
+  await expect(page.getByRole("button", { name: "Cards" })).toBeHidden();
+  const firstSponsor = page.locator("#sponsor-list article").first();
+  await expect(firstSponsor.locator(".sponsor-card-name")).not.toHaveText("");
+  await expect(firstSponsor.locator(".sponsor-card-phone")).toBeVisible();
+  await expect(firstSponsor.locator(".sponsor-card-website")).toBeVisible();
+  await expect(firstSponsor.locator(".sponsor-details")).toBeHidden();
+  await firstSponsor.locator(".sponsor-card-toggle").click();
+  await expect(firstSponsor.locator(".sponsor-details")).toBeVisible();
+  await expect(firstSponsor.locator(".sponsor-card-toggle")).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByRole("link", { name: "Full Sponsor list" })).toBeVisible();
   await expect(page.locator("#merch h2")).toContainText("New releases from the Michael Berry Show store.");
   await expect(page.locator("#media-player")).toBeHidden();
@@ -54,16 +61,15 @@ test("directory search and admin shell", async ({ page }) => {
   await page.getByRole("button", { name: "Minimize" }).click();
   await expect(page.locator("#media-player")).toHaveAttribute("data-player-state", "minimized");
   await expect(page.locator("#media-frame")).toBeVisible();
-  await page.getByRole("button", { name: "Hide" }).click();
+  await page.locator("#media-close").click();
   await expect(page.locator("#media-player")).toBeHidden();
 
   await page.fill("#sponsor-search", "houston");
   await expect(page.locator("#sponsor-result-count")).toContainText("houston");
-  await expect(page.locator("#sponsor-view-controls")).toBeVisible();
-  await expect(page.locator("#sponsor-list article")).toHaveCount(12);
-  await expect(page.locator("#sponsor-more-results")).toContainText("More");
-  await page.getByRole("button", { name: "More" }).click();
-  await expect(page.locator("#sponsor-list article")).toHaveCount(24);
+  await expect(page.locator("#sponsor-view-controls")).toBeHidden();
+  await expect(page.locator("#sponsor-result-count")).toContainText("Showing all");
+  await expect(page.locator("#sponsor-list article").first()).toBeVisible();
+  await expect(page.locator("#sponsor-more-results")).toBeHidden();
 
   await page.fill("#sponsor-search", "patio");
   await expect(page.locator("#sponsor-result-count")).toContainText("patio");
@@ -72,8 +78,7 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-list")).toContainText(/Outdoor|Shade|Topsoil|Sunflower/);
   await expect(page.locator("#sponsor-list")).not.toContainText("Abacus Plumbing & Electrical");
 
-  await page.getByRole("button", { name: "List" }).click();
-  await expect(page.locator("#sponsor-list")).toHaveClass(/list-view/);
+  await expect(page.getByRole("button", { name: "List" })).toBeHidden();
 
   await page.fill("#sponsor-search", "hvac houston");
   await expect(page.locator("#sponsor-result-count")).toContainText("hvac houston");
@@ -131,8 +136,9 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-list")).not.toContainText("Atlas Foundation Repair");
 
   await page.fill("#sponsor-search", "");
-  await expect(page.locator("#sponsor-list article")).toHaveCount(0);
-  await expect(page.locator("#sponsor-list")).toBeHidden();
+  await expect(page.locator("#sponsor-result-count")).toContainText("Showing all 80 sponsors");
+  await expect(page.locator("#sponsor-list")).toBeVisible();
+  await expect(page.locator("#sponsor-list article")).toHaveCount(80);
 
   await page.goto(`${baseUrl}/admin.html`, { waitUntil: "networkidle" });
   await expect(page.locator("#admin-status")).toContainText("Preview mode");
