@@ -303,10 +303,40 @@ h1 {
 .live-strip strong {
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 7px;
   min-height: 92px;
-  padding: 0 clamp(18px, 2.5vw, 26px) 18px;
-  font-size: clamp(40px, 4rem, 58px);
+  padding: 0 clamp(14px, 2vw, 20px) 18px;
+  font-size: clamp(38px, 3.1vw, 42px);
   line-height: 0.94;
+}
+
+.live-strip .time-value {
+  display: block;
+  margin: 0;
+  color: var(--white);
+  font: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.live-strip .time-zone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 6px 0 0;
+  min-height: 24px;
+  padding: 0 7px;
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  border-radius: 999px;
+  color: var(--white);
+  background: rgba(7, 20, 59, 0.22);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .live-times {
@@ -317,7 +347,8 @@ h1 {
 }
 
 .live-times strong + strong {
-  border-left: 1px solid rgba(255, 255, 255, 0.28);
+  border-left: 3px solid rgba(255, 255, 255, 0.52);
+  box-shadow: inset 1px 0 0 rgba(7, 20, 59, 0.22);
 }
 
 .email-tile {
@@ -328,7 +359,7 @@ h1 {
   padding: 16px 18px;
   border-radius: 8px;
   color: var(--white);
-  background: var(--ktrh-green);
+  background: #344463;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
@@ -1520,9 +1551,20 @@ h1 {
   }
 
   .live-strip strong {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 6px;
     min-height: 82px;
     padding: 0 14px 14px;
-    font-size: clamp(34px, 9.4vw, 46px);
+    font-size: clamp(34px, 9.1vw, 44px);
+  }
+
+  .live-strip .time-zone {
+    min-height: 22px;
+    margin: 0;
+    padding: 0 7px;
+    font-size: 11px;
   }
 
   .email-tile {

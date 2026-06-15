@@ -13,8 +13,10 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(desktopNav).not.toContainText("Admin");
   await expect(desktopNav.getByRole("link", { name: "Contact" })).toBeVisible();
   await expect(desktopNav.getByRole("link", { name: "Join List" })).toBeVisible();
-  await expect(page.locator(".live-strip")).toContainText("Weekdays (times in CST)");
+  await expect(page.locator(".live-strip")).toContainText("Weekdays");
   await expect(page.locator(".live-times strong")).toHaveCount(2);
+  await expect(page.locator(".live-strip .time-zone")).toHaveCount(2);
+  await expect(page.locator(".live-strip .time-zone").first()).toContainText("CST");
   await expect(page.getByRole("link", { name: /Send Michael an email/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /Get Michael's Daily Email Update/i })).toBeVisible();
   await expect(page.locator("#sponsor-list article")).toHaveCount(0);
