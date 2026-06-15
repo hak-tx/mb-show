@@ -366,10 +366,10 @@ h1 {
 
 .email-tile strong {
   display: block;
-  font-size: clamp(18px, 2vw, 24px);
-  line-height: 1.05;
+  font-size: clamp(19px, 2vw, 25px);
+  line-height: 1.04;
   text-align: center;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 .quick-links {

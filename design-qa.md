@@ -89,5 +89,6 @@
 - Latest hero action update: split the red schedule tile into two time halves with `Weekdays (times in CST)` copy at the top, added a green `Send Michael an email` tile under the schedule, and changed the yellow tile to `Get Michael's Daily Email Update`. Screenshot evidence: `/tmp/mb-show-hero-actions-desktop.png`, `/tmp/mb-show-hero-actions-mobile.png`.
 - Schedule emphasis update: strengthened the divider between the two weekday time halves, moved `CST` into prominent badges beside each time on desktop with a stacked mobile fallback, and changed the `Send Michael an email` tile from green to slate blue. Screenshot evidence: `/tmp/mb-show-hero-time-cst-desktop.png`, `/tmp/mb-show-hero-time-cst-mobile.png`.
 - Schedule two-card update: replaced the single red schedule slab and partial divider with two separate red time cards, keeping each `CST` badge directly beside its time on desktop and mobile. Screenshot evidence: `/tmp/mb-show-schedule-two-cards-desktop.png`, `/tmp/mb-show-schedule-two-cards-mobile.png`.
+- Email tile typography update: changed the `Send Michael an email` tile to uppercase and matched its headline scale to the other hero action tiles. Screenshot evidence: `/tmp/mb-show-email-uppercase-desktop.png`, `/tmp/mb-show-email-uppercase-mobile.png`.
 
 final result: passed
