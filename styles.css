@@ -301,6 +301,7 @@ h1 {
 
 .live-strip strong {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -314,26 +315,25 @@ h1 {
 
 .live-strip .time-value {
   display: block;
+  width: 100%;
   margin: 0;
   color: var(--white);
   font: inherit;
   letter-spacing: 0;
+  text-align: center;
   text-transform: none;
   white-space: nowrap;
 }
 
 .live-strip .time-zone {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 1px 0 0;
-  min-height: 24px;
-  padding: 0 7px;
-  border: 1px solid rgba(255, 255, 255, 0.68);
-  border-radius: 999px;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
   color: var(--white);
-  background: rgba(7, 20, 59, 0.22);
-  font-size: 12px;
+  background: transparent;
+  font-size: 14px;
   font-weight: 950;
   letter-spacing: 0;
   line-height: 1;
@@ -1641,20 +1641,19 @@ h1 {
   }
 
   .live-strip strong {
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 4px;
     min-height: 82px;
     padding: 0 8px;
     font-size: clamp(31px, 8.4vw, 36px);
   }
 
   .live-strip .time-zone {
-    min-height: 22px;
     margin: 0;
-    padding: 0 7px;
-    font-size: 11px;
+    padding: 0;
+    font-size: 12px;
   }
 
   .email-tile {
