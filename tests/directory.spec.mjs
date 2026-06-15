@@ -61,6 +61,7 @@ test("directory search and admin shell", async ({ page }) => {
   await page.getByRole("button", { name: "Minimize" }).click();
   await expect(page.locator("#media-player")).toHaveAttribute("data-player-state", "minimized");
   await expect(page.locator("#media-frame")).toBeVisible();
+  await expect(page.locator("#media-close")).toHaveText("Close");
   await page.locator("#media-close").click();
   await expect(page.locator("#media-player")).toBeHidden();
 
