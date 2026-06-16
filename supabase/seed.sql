@@ -763,7 +763,7 @@ insert into public.sponsors (
     'Hawthorne Capital',
     'http://www.hawthornecapital.com/',
     'https://hawthornecapital.com/',
-    null,
+    '832-205-3444',
     'Real Estate Private Equity',
     'Houston-based private equity firm focused on purchasing, improving, subdividing, and selling rural Texas land for investor-backed real estate projects.',
     array['real estate private equity', 'land investment', 'rural land development', 'passive income investments', 'private funds', 'texas land projects']::text[],
