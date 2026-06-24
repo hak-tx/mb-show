@@ -142,38 +142,44 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-list article")).toHaveCount(80);
 
   await page.goto(`${baseUrl}/admin.html`, { waitUntil: "networkidle" });
-  await expect(page.locator("#admin-status")).toContainText("Preview mode");
-  await expect(page.locator("#editor-panel")).toBeVisible();
-  await expect(page.locator("#stat-total")).toContainText("80");
-  await expect(page.getByRole("button", { name: "Add sponsor" })).toBeVisible();
-  await expect(page.getByLabel("Find a sponsor")).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Delete$/ })).toHaveCount(0);
+  const adminPath = new URL(page.url()).pathname;
+  if (adminPath === "/admin" || adminPath === "/admin.html") {
+    await expect(page.locator("#admin-status")).toContainText("Preview mode");
+    await expect(page.locator("#editor-panel")).toBeVisible();
+    await expect(page.locator("#stat-total")).toContainText("80");
+    await expect(page.getByRole("button", { name: "Add sponsor" })).toBeVisible();
+    await expect(page.getByLabel("Find a sponsor")).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Delete$/ })).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Edit" }).first().click();
-  await expect(page.locator(".inline-sponsor-editor")).toBeVisible();
-  await expect(page.getByLabel("Sponsor name")).not.toHaveValue("");
-  await expect(page.getByLabel("Phone number")).toBeVisible();
-  await expect(page.getByLabel("Website / tracking URL")).toBeVisible();
-  await page.getByLabel("Extra search keywords").fill("whole house generator");
-  await page.getByRole("button", { name: "Add keyword" }).click();
-  await expect(page.locator("[data-keyword-chips]")).toContainText("whole house generator");
-  await page.getByRole("button", { name: "Save listing" }).click();
-  await expect(page.locator("#admin-status")).toContainText("Saved in preview mode");
-  await expect(page.locator(".inline-sponsor-editor")).toHaveCount(0);
+    await page.getByRole("button", { name: "Edit" }).first().click();
+    await expect(page.locator(".inline-sponsor-editor")).toBeVisible();
+    await expect(page.getByLabel("Sponsor name")).not.toHaveValue("");
+    await expect(page.getByLabel("Phone number")).toBeVisible();
+    await expect(page.getByLabel("Website / tracking URL")).toBeVisible();
+    await page.getByLabel("Extra search keywords").fill("whole house generator");
+    await page.getByRole("button", { name: "Add keyword" }).click();
+    await expect(page.locator("[data-keyword-chips]")).toContainText("whole house generator");
+    await page.getByRole("button", { name: "Save listing" }).click();
+    await expect(page.locator("#admin-status")).toContainText("Saved in preview mode");
+    await expect(page.locator(".inline-sponsor-editor")).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Edit" }).first().click();
-  await page.getByRole("button", { name: "Delete sponsor..." }).click();
-  await expect(page.getByRole("button", { name: "Confirm delete" })).toBeVisible();
-  await page.getByRole("button", { name: "Keep sponsor" }).click();
-  await expect(page.getByRole("button", { name: "Confirm delete" })).toHaveCount(0);
-  await page.getByRole("button", { name: "Close" }).click();
-  await expect(page.locator(".inline-sponsor-editor")).toHaveCount(0);
+    await page.getByRole("button", { name: "Edit" }).first().click();
+    await page.getByRole("button", { name: "Delete sponsor..." }).click();
+    await expect(page.getByRole("button", { name: "Confirm delete" })).toBeVisible();
+    await page.getByRole("button", { name: "Keep sponsor" }).click();
+    await expect(page.getByRole("button", { name: "Confirm delete" })).toHaveCount(0);
+    await page.getByRole("button", { name: "Close" }).click();
+    await expect(page.locator(".inline-sponsor-editor")).toHaveCount(0);
 
-  const firstStatusToggle = page.locator(".status-toggle").first();
-  const startingStatus = (await firstStatusToggle.textContent()).trim();
-  await firstStatusToggle.click();
-  await expect(page.locator("#admin-status")).toContainText("is now");
-  await expect(firstStatusToggle).not.toHaveText(startingStatus);
+    const firstStatusToggle = page.locator(".status-toggle").first();
+    const startingStatus = (await firstStatusToggle.textContent()).trim();
+    await firstStatusToggle.click();
+    await expect(page.locator("#admin-status")).toContainText("is now");
+    await expect(firstStatusToggle).not.toHaveText(startingStatus);
+  } else {
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.locator("#sponsors")).toBeVisible();
+  }
   expect(errors).toEqual([]);
 });
 
