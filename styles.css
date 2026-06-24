@@ -841,7 +841,7 @@ h1 {
 
 .store-links {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin-top: 16px;
 }
@@ -858,11 +858,6 @@ h1 {
 }
 
 .store-links a:nth-child(3) {
-  color: var(--navy);
-  background: var(--gold);
-}
-
-.store-links a:nth-child(4) {
   background: var(--teal);
 }
 

@@ -10,6 +10,26 @@
       "source": "/admin.html",
       "destination": "/",
       "permanent": false
+    },
+    {
+      "source": "/cart",
+      "destination": "https://shop.michaelberryshow.com/cart",
+      "permanent": false
+    },
+    {
+      "source": "/products/:path*",
+      "destination": "https://shop.michaelberryshow.com/products/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/collections/:path*",
+      "destination": "https://shop.michaelberryshow.com/collections/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/pages/:path*",
+      "destination": "https://shop.michaelberryshow.com/pages/:path*",
+      "permanent": false
     }
   ]
 }
