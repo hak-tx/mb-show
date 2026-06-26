@@ -19,9 +19,9 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator(".live-strip .time-zone").first()).toContainText("CST");
   await expect(page.getByRole("link", { name: /Send Michael an email/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /Get Michael's Daily Email Update/i })).toBeVisible();
-  await expect(page.locator("#sponsor-result-count")).toContainText("Showing all 80 sponsors");
+  await expect(page.locator("#sponsor-result-count")).toContainText("Showing all 82 sponsors");
   await expect(page.locator("#sponsor-list")).toBeVisible();
-  await expect(page.locator("#sponsor-list article")).toHaveCount(80);
+  await expect(page.locator("#sponsor-list article")).toHaveCount(82);
   await expect(page.locator("#sponsor-more-results")).toBeHidden();
   await expect(page.locator(".directory-shell")).toHaveCSS("background-color", "rgb(247, 249, 253)");
   await expect(page.locator("#sponsor-state-filter")).toHaveCount(0);
@@ -137,16 +137,25 @@ test("directory search and admin shell", async ({ page }) => {
   await expect(page.locator("#sponsor-list")).not.toContainText("Atlas Foundation Repair");
 
   await page.fill("#sponsor-search", "");
-  await expect(page.locator("#sponsor-result-count")).toContainText("Showing all 80 sponsors");
+  await expect(page.locator("#sponsor-result-count")).toContainText("Showing all 82 sponsors");
   await expect(page.locator("#sponsor-list")).toBeVisible();
-  await expect(page.locator("#sponsor-list article")).toHaveCount(80);
+  await expect(page.locator("#sponsor-list article")).toHaveCount(82);
 
   await page.goto(`${baseUrl}/admin.html`, { waitUntil: "networkidle" });
   const adminPath = new URL(page.url()).pathname;
   if (adminPath === "/admin" || adminPath === "/admin.html") {
+    const adminStatus = await page.locator("#admin-status").textContent();
+    if (adminStatus?.includes("Sign in")) {
+      await expect(page.locator("#auth-panel")).toBeVisible();
+      await expect(page.locator("#editor-panel")).toBeHidden();
+      await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
+      expect(errors).toEqual([]);
+      return;
+    }
+
     await expect(page.locator("#admin-status")).toContainText("Preview mode");
     await expect(page.locator("#editor-panel")).toBeVisible();
-    await expect(page.locator("#stat-total")).toContainText("80");
+    await expect(page.locator("#stat-total")).toContainText("82");
     await expect(page.getByRole("button", { name: "Add sponsor" })).toBeVisible();
     await expect(page.getByLabel("Find a sponsor")).toBeVisible();
     await expect(page.getByRole("button", { name: /^Delete$/ })).toHaveCount(0);
@@ -195,7 +204,7 @@ test("mobile header keeps nav collapsed", async ({ page }) => {
   });
   expect(quickLinkRows).toBe(2);
 
-  await expect(page.locator(".site-header .cart-button")).toBeVisible();
+  await expect(page.locator(".site-header .cart-button")).toBeHidden();
   await expect(page.getByRole("button", { name: "Menu" })).toBeVisible();
   await expect(nav).not.toBeVisible();
   await expect(page.locator(".email-tile")).toBeVisible();
@@ -203,6 +212,7 @@ test("mobile header keeps nav collapsed", async ({ page }) => {
   await page.getByRole("button", { name: "Menu" }).click();
   await expect(nav).toBeVisible();
   await expect(nav).not.toContainText("Admin");
+  await expect(nav.getByRole("link", { name: "Cart" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Contact" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Join List" })).toBeVisible();
 

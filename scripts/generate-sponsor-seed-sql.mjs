@@ -23,7 +23,7 @@ function slugify(value) {
 
 const data = JSON.parse(await readFile(dataPath, "utf8"));
 const rows = data.sponsors.map((sponsor) => {
-  const slug = slugify(sponsor.name);
+  const slug = sponsor.slug || slugify(sponsor.name);
   const isPremiumDemo = slug === "abacus-plumbing-and-electrical";
   return `(
     ${sqlString(slug)},
@@ -35,7 +35,10 @@ const rows = data.sponsors.map((sponsor) => {
     ${sqlString(sponsor.description)},
     ${sqlTextArray(sponsor.services)},
     ${sqlTextArray(sponsor.service_areas)},
+    ${sqlTextArray(sponsor.cities)},
+    ${sqlTextArray(sponsor.states)},
     ${sqlTextArray(sponsor.keywords)},
+    ${sqlTextArray(sponsor.admin_keywords || sponsor.keywords)},
     ${sqlTextArray(sponsor.source_notes)},
     ${sqlString(sponsor.source_url)},
     ${sqlString(sponsor.source_published_at)},
@@ -62,7 +65,10 @@ insert into public.sponsors (
   description,
   services,
   service_areas,
+  cities,
+  states,
   keywords,
+  admin_keywords,
   source_notes,
   source_url,
   source_published_at,
@@ -83,7 +89,10 @@ on conflict (slug) do update set
   description = excluded.description,
   services = excluded.services,
   service_areas = excluded.service_areas,
+  cities = excluded.cities,
+  states = excluded.states,
   keywords = excluded.keywords,
+  admin_keywords = excluded.admin_keywords,
   source_notes = excluded.source_notes,
   source_url = excluded.source_url,
   source_published_at = excluded.source_published_at,

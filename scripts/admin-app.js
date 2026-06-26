@@ -2,15 +2,23 @@
   const config = window.MB_SHOW_SUPABASE || {};
   const status = document.querySelector("#admin-status");
   const signOut = document.querySelector("#sign-out");
+  const authPanel = document.querySelector("#auth-panel");
+  const loginForm = document.querySelector("#admin-login-form");
   const editorPanel = document.querySelector("#editor-panel");
+  const adminSummary = document.querySelector("#admin-summary");
+  const passwordPanel = document.querySelector("#admin-password-panel");
   const rows = document.querySelector("#sponsor-admin-rows");
   const newButton = document.querySelector("#new-sponsor");
   const adminSearch = document.querySelector("#admin-search");
+  const forgotPassword = document.querySelector("#forgot-password");
+  const changePasswordForm = document.querySelector("#change-password-form");
+  const statusModalRoot = document.createElement("div");
+  statusModalRoot.className = "status-modal-root";
+  document.body.appendChild(statusModalRoot);
 
   const stats = {
     total: document.querySelector("#stat-total"),
     active: document.querySelector("#stat-active"),
-    premium: document.querySelector("#stat-premium"),
     inactive: document.querySelector("#stat-inactive"),
   };
 
@@ -20,10 +28,13 @@
       : null;
 
   const NEW_SPONSOR_ID = "__new_sponsor__";
+  const publicSponsorCacheKey = "mb-show-sponsor-directory-v3";
   let sponsorRecords = [];
   let editingId = "";
   let deletePendingId = "";
-  let previewMode = !client;
+  let statusPendingId = "";
+  let passwordChangeRequired = false;
+  let previewMode = false;
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -79,18 +90,81 @@
     };
   }
 
+  function messageFromError(error, fallback = "Something went wrong. Please try again.") {
+    if (!error) return fallback;
+    if (typeof error === "string") return error;
+    if (error.message) return error.message;
+    if (error.error_description) return error.error_description;
+    if (error.msg) return error.msg;
+    try {
+      const text = JSON.stringify(error);
+      return text && text !== "{}" ? text : fallback;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
   function setStatus(message) {
-    status.textContent = message;
+    const text = typeof message === "string" ? message : messageFromError(message);
+    status.textContent = text;
+    status.hidden = !text;
+  }
+
+  function clearPublicSponsorCache() {
+    try {
+      window.localStorage.removeItem(publicSponsorCacheKey);
+    } catch (_) {}
+  }
+
+  function showSignedOut(message = "Sign in with an approved admin account to manage sponsors.") {
+    sponsorRecords = [];
+    editingId = "";
+    deletePendingId = "";
+    statusPendingId = "";
+    passwordChangeRequired = false;
+    setStats();
+    authPanel.hidden = false;
+    editorPanel.hidden = true;
+    adminSummary.hidden = true;
+    passwordPanel.hidden = true;
+    changePasswordForm.reset();
+    signOut.hidden = true;
+    setStatus(message);
+    renderStatusModal();
+  }
+
+  function showUnauthorized(email) {
+    sponsorRecords = [];
+    editingId = "";
+    deletePendingId = "";
+    statusPendingId = "";
+    passwordChangeRequired = false;
+    setStats();
+    authPanel.hidden = true;
+    editorPanel.hidden = true;
+    adminSummary.hidden = true;
+    passwordPanel.hidden = true;
+    changePasswordForm.reset();
+    signOut.hidden = false;
+    setStatus(`${email || "This account"} is signed in, but is not approved for sponsor admin access.`);
+    renderStatusModal();
+  }
+
+  function showEditor(message) {
+    authPanel.hidden = true;
+    editorPanel.hidden = false;
+    adminSummary.hidden = false;
+    passwordPanel.hidden = !passwordChangeRequired;
+    signOut.hidden = false;
+    setStatus(message);
   }
 
   function setStats() {
     const active = sponsorRecords.filter((sponsor) => sponsor.sponsor_status === "active").length;
     const inactive = sponsorRecords.length - active;
-    const premium = sponsorRecords.filter((sponsor) => sponsor.premium_tier !== "standard").length;
 
     stats.total.textContent = sponsorRecords.length;
     stats.active.textContent = active;
-    stats.premium.textContent = premium;
     stats.inactive.textContent = inactive;
   }
 
@@ -106,13 +180,6 @@
 
   function selected(actual, expected) {
     return actual === expected ? " selected" : "";
-  }
-
-  function renderKeywordTags(keywords, limit = 5) {
-    const visible = keywords.slice(0, limit);
-    if (!visible.length) return `<em>No keywords yet</em>`;
-    const overflow = keywords.length > limit ? [`+${keywords.length - limit} more`] : [];
-    return [...visible, ...overflow].map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("");
   }
 
   function renderKeywordEditor(keywords) {
@@ -144,7 +211,6 @@
       sponsor.premium_tier,
       sponsor.description,
       ...normalizeArray(sponsor.services),
-      ...normalizeArray(sponsor.service_areas),
       ...normalizeArray(sponsor.keywords),
       ...normalizeArray(sponsor.admin_keywords),
     ]
@@ -154,30 +220,25 @@
   }
 
   function renderSponsorRow(sponsor) {
-    const keywords = unique([...normalizeArray(sponsor.admin_keywords), ...normalizeArray(sponsor.services)]);
-    const phoneWebsite = [sponsor.phone, displayUrl(sponsor.website_url)].filter(Boolean).join(" | ");
     const isActive = sponsor.sponsor_status === "active";
     const rowClass = editingId === sponsor.id ? " class=\"is-editing\"" : "";
+    const statusControl = `<button
+      class="status-toggle ${isActive ? "is-active" : "is-inactive"}"
+      type="button"
+      data-action="toggle-status"
+      data-id="${escapeHtml(sponsor.id)}"
+      aria-pressed="${String(isActive)}"
+    >${isActive ? "Active" : "Inactive"}</button>`;
 
     return `<tr${rowClass}>
+      <td class="admin-status-cell">${statusControl}</td>
       <td>
         <strong>${escapeHtml(sponsor.name)}</strong>
-        <small>${escapeHtml(normalizeArray(sponsor.service_areas).join(", ") || "Service area not set")}</small>
       </td>
       <td>${escapeHtml(sponsor.category || "General")}</td>
       <td>
         <strong>${escapeHtml(sponsor.phone || "No phone")}</strong>
         <small>${escapeHtml(displayUrl(sponsor.website_url) || "No website")}</small>
-      </td>
-      <td><div class="admin-keyword-list">${renderKeywordTags(keywords)}</div></td>
-      <td>
-        <button
-          class="status-toggle ${isActive ? "is-active" : "is-inactive"}"
-          type="button"
-          data-action="toggle-status"
-          data-id="${escapeHtml(sponsor.id)}"
-          aria-pressed="${String(isActive)}"
-        >${isActive ? "Active" : "Inactive"}</button>
       </td>
       <td>
         <div class="admin-row-actions">
@@ -194,7 +255,6 @@
     const keywords = keywordPool(sponsor);
     const title = isNew ? "Add sponsor" : `Edit ${sponsor.name}`;
     const statusValue = normalizeStatus(sponsor.sponsor_status);
-    const tierValue = sponsor.premium_tier || "standard";
 
     const deleteBlock = isNew
       ? ""
@@ -208,11 +268,12 @@
         : `<button class="quiet-danger" type="button" data-action="ask-delete" data-id="${escapeHtml(sponsor.id)}">Delete sponsor...</button>`;
 
     return `<tr class="admin-edit-row">
-      <td colspan="6">
+      <td colspan="5">
         <form class="inline-sponsor-editor" data-editor-form>
           <input type="hidden" name="id" value="${escapeHtml(id)}">
           <input type="hidden" name="admin_keywords" value="${escapeHtml(keywords.join(", "))}">
-          <input type="hidden" name="premium_rank" value="${escapeHtml(sponsor.premium_rank || 0)}">
+          <input type="hidden" name="premium_tier" value="standard">
+          <input type="hidden" name="premium_rank" value="0">
 
           <div class="inline-editor-heading">
             <div>
@@ -249,19 +310,6 @@
                   <option value="inactive"${selected(statusValue, "inactive")}>Inactive - hide for now</option>
                 </select>
               </div>
-              <div class="form-field">
-                <label for="${editorFieldId("sponsor-tier", suffix)}">Listing level</label>
-                <select id="${editorFieldId("sponsor-tier", suffix)}" name="premium_tier">
-                  <option value="standard"${selected(tierValue, "standard")}>Standard</option>
-                  <option value="featured"${selected(tierValue, "featured")}>Featured</option>
-                  <option value="premium"${selected(tierValue, "premium")}>Premium</option>
-                  <option value="exclusive"${selected(tierValue, "exclusive")}>Exclusive</option>
-                </select>
-              </div>
-              <div class="form-field">
-                <label for="${editorFieldId("sponsor-areas", suffix)}">Service areas</label>
-                <input id="${editorFieldId("sponsor-areas", suffix)}" name="service_areas" type="text" value="${escapeHtml(normalizeArray(sponsor.service_areas).join(", "))}" placeholder="Houston, Greater Houston, Texas">
-              </div>
               <div class="form-field full-span">
                 <label for="${editorFieldId("sponsor-description", suffix)}">Short description</label>
                 <textarea id="${editorFieldId("sponsor-description", suffix)}" name="description" rows="3" placeholder="Plain-English notes about what this sponsor offers.">${escapeHtml(sponsor.description)}</textarea>
@@ -288,11 +336,11 @@
           </div>
 
           <div class="admin-actions">
-            <div>
-              <button class="button primary" type="submit">Save listing</button>
-              <button class="button secondary" type="button" data-action="cancel-edit">Cancel</button>
-            </div>
             <div class="admin-danger-zone">${deleteBlock}</div>
+            <div class="admin-save-actions">
+              <button class="button secondary" type="button" data-action="cancel-edit">Cancel</button>
+              <button class="button primary" type="submit">Save listing</button>
+            </div>
           </div>
         </form>
       </td>
@@ -315,17 +363,54 @@
 
     rows.innerHTML = rowHtml.length
       ? rowHtml.join("")
-      : `<tr><td colspan="6">No sponsors match that admin search.</td></tr>`;
+      : `<tr><td colspan="5">No sponsors match that admin search.</td></tr>`;
+    renderStatusModal();
   }
 
-  async function loadDemoSponsors() {
-    const response = await fetch("./data/sponsors.enriched.json");
-    const data = await response.json();
-    sponsorRecords = data.sponsors.map(normalizeSponsor);
-    previewMode = true;
-    editorPanel.hidden = false;
-    setStatus("Preview mode. Changes stay in this browser preview until Supabase is connected.");
-    renderRows();
+  function renderStatusModal() {
+    const sponsor = sponsorRecords.find((record) => record.id === statusPendingId);
+    document.body.classList.toggle("has-admin-modal", Boolean(sponsor));
+
+    if (!sponsor) {
+      statusModalRoot.innerHTML = "";
+      return;
+    }
+
+    const isActive = sponsor.sponsor_status === "active";
+    const nextStatus = isActive ? "inactive" : "active";
+    const title = isActive ? "Make this listing inactive?" : "Reactivate this listing?";
+    const confirmLabel = isActive ? "Set inactive" : "Reactivate";
+    const consequence = isActive
+      ? "This sponsor will stop showing in the public sponsor directory."
+      : "This sponsor will show again in the public sponsor directory.";
+    const confirmClass = isActive ? "danger" : "success";
+
+    statusModalRoot.innerHTML = `
+      <div class="admin-modal-backdrop" data-action="cancel-status" aria-hidden="true"></div>
+      <div class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="status-modal-title">
+        <p class="eyebrow">Confirm status change</p>
+        <h3 id="status-modal-title">${title}</h3>
+        <p>
+          <strong>${escapeHtml(sponsor.name)}</strong> will be changed to
+          <strong>${nextStatus}</strong>.
+        </p>
+        <p class="admin-modal-warning">${consequence}</p>
+        <div class="admin-modal-actions">
+          <button class="button secondary" type="button" data-action="cancel-status">Cancel</button>
+          <button class="button ${confirmClass}" type="button" data-action="confirm-status" data-id="${escapeHtml(sponsor.id)}">${confirmLabel}</button>
+        </div>
+      </div>`;
+
+    window.requestAnimationFrame(() => {
+      const cancelButton = statusModalRoot.querySelector("[data-action='cancel-status']:not(.admin-modal-backdrop)");
+      if (cancelButton) cancelButton.focus();
+    });
+  }
+
+  async function verifyAdminAccess() {
+    const { data, error } = await client.rpc("current_sponsor_admin_status");
+    if (error) return { is_admin: false, error };
+    return data || { is_admin: false };
   }
 
   async function loadLiveSponsors() {
@@ -341,8 +426,7 @@
 
     sponsorRecords = data.map(normalizeSponsor);
     previewMode = false;
-    editorPanel.hidden = false;
-    setStatus("Connected to Supabase. Changes save to the live sponsor database.");
+    showEditor("");
     renderRows();
   }
 
@@ -361,13 +445,23 @@
     return splitList(form.elements.admin_keywords.value);
   }
 
+  function passwordRequirementErrors(password) {
+    const errors = [];
+    if (password.length < 12) errors.push("at least 12 characters");
+    if (!/[a-z]/.test(password)) errors.push("one lowercase letter");
+    if (!/[A-Z]/.test(password)) errors.push("one uppercase letter");
+    if (!/[0-9]/.test(password)) errors.push("one number");
+    if (!/[^A-Za-z0-9]/.test(password)) errors.push("one symbol");
+    return errors;
+  }
+
   function writeFormKeywords(form, keywords) {
     const nextKeywords = unique(keywords);
     form.elements.admin_keywords.value = nextKeywords.join(", ");
     form.querySelector("[data-keyword-chips]").innerHTML = renderKeywordEditor(nextKeywords);
   }
 
-  function payloadFromForm(form) {
+  function payloadFromForm(form, existingSponsor = {}) {
     const formData = new FormData(form);
     const name = String(formData.get("name") || "").trim();
     return {
@@ -378,10 +472,10 @@
       category: String(formData.get("category") || "").trim() || "General",
       description: String(formData.get("description") || "").trim() || null,
       services: splitList(formData.get("services")),
-      service_areas: splitList(formData.get("service_areas")),
+      service_areas: normalizeArray(existingSponsor.service_areas),
       admin_keywords: splitList(formData.get("admin_keywords")),
-      premium_tier: String(formData.get("premium_tier") || "standard"),
-      premium_rank: Number(formData.get("premium_rank") || 0),
+      premium_tier: "standard",
+      premium_rank: 0,
       sponsor_status: normalizeStatus(formData.get("sponsor_status")),
     };
   }
@@ -393,7 +487,8 @@
 
     const formId = form.elements.id.value;
     const id = formId === NEW_SPONSOR_ID ? "" : formId;
-    const payload = payloadFromForm(form);
+    const existingSponsor = sponsorRecords.find((record) => record.id === id) || {};
+    const payload = payloadFromForm(form, existingSponsor);
 
     if (!payload.name) {
       setStatus("Add a sponsor name before saving.");
@@ -404,6 +499,7 @@
       upsertPreviewSponsor(payload, id);
       editingId = "";
       deletePendingId = "";
+      statusPendingId = "";
       setStatus("Saved in preview mode.");
       renderRows();
       return;
@@ -417,6 +513,8 @@
     if (!error) {
       editingId = "";
       deletePendingId = "";
+      statusPendingId = "";
+      clearPublicSponsorCache();
       await loadLiveSponsors();
     }
   }
@@ -431,14 +529,19 @@
       sponsorRecords = sponsorRecords.map((record) =>
         record.id === id ? { ...record, sponsor_status: nextStatus } : record,
       );
+      statusPendingId = "";
       setStatus(`${sponsor.name} is now ${nextStatus}.`);
       renderRows();
       return;
     }
 
     const { error } = await client.from("sponsors").update({ sponsor_status: nextStatus }).eq("id", id);
+    statusPendingId = "";
     setStatus(error ? error.message : `${sponsor.name} is now ${nextStatus}.`);
-    if (!error) await loadLiveSponsors();
+    if (!error) {
+      clearPublicSponsorCache();
+      await loadLiveSponsors();
+    }
   }
 
   async function deleteSponsorById(id) {
@@ -448,6 +551,7 @@
       sponsorRecords = sponsorRecords.filter((record) => record.id !== id);
       editingId = "";
       deletePendingId = "";
+      statusPendingId = "";
       setStatus("Deleted in preview mode.");
       renderRows();
       return;
@@ -458,6 +562,8 @@
     if (!error) {
       editingId = "";
       deletePendingId = "";
+      statusPendingId = "";
+      clearPublicSponsorCache();
       await loadLiveSponsors();
     }
   }
@@ -473,21 +579,109 @@
 
   async function refreshSession() {
     if (!client) {
-      await loadDemoSponsors();
+      showSignedOut("Admin login is unavailable. Supabase is not configured for this deployment.");
       return;
     }
 
     const { data } = await client.auth.getSession();
     const signedIn = Boolean(data.session);
-    signOut.hidden = !signedIn;
 
-    if (signedIn) {
-      await loadLiveSponsors();
+    if (!signedIn) {
+      showSignedOut();
       return;
     }
 
-    await loadDemoSponsors();
+    const adminStatus = await verifyAdminAccess();
+    if (!adminStatus.is_admin) {
+      showUnauthorized(adminStatus.email || data.session.user.email);
+      return;
+    }
+
+    passwordChangeRequired = Boolean(adminStatus.password_change_required);
+    await loadLiveSponsors();
   }
+
+  async function sendPasswordReset() {
+    if (!client) return;
+    const email = String(loginForm.elements.email.value || "").trim();
+    if (!email) {
+      setStatus("Enter your email address first, then click the reset link button.");
+      loginForm.elements.email.focus();
+      return;
+    }
+
+    forgotPassword.disabled = true;
+    setStatus("Sending password reset email...");
+    const { error } = await client.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/admin`,
+    });
+    forgotPassword.disabled = false;
+
+    if (error) {
+      setStatus(messageFromError(error, "Could not send reset email."));
+      return;
+    }
+
+    setStatus("Password reset email sent. Check that inbox for the link.");
+  }
+
+  async function updatePassword(event) {
+    event.preventDefault();
+    if (!client) return;
+
+    const newPassword = String(changePasswordForm.elements.new_password.value || "");
+    const confirmPassword = String(changePasswordForm.elements.confirm_password.value || "");
+
+    const requirementErrors = passwordRequirementErrors(newPassword);
+    if (requirementErrors.length) {
+      setStatus(`New password needs ${requirementErrors.join(", ")}.`);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setStatus("The new passwords do not match.");
+      return;
+    }
+
+    const button = changePasswordForm.querySelector("button[type='submit']");
+    button.disabled = true;
+    setStatus("Updating password...");
+    const { error } = await client.auth.updateUser({ password: newPassword });
+    button.disabled = false;
+
+    if (error) {
+      setStatus(messageFromError(error, "Could not update password."));
+      return;
+    }
+
+    const { error: markError } = await client.rpc("mark_current_sponsor_admin_password_changed");
+    if (markError) {
+      setStatus(messageFromError(markError, "Password updated, but the reminder could not be hidden."));
+      return;
+    }
+
+    changePasswordForm.reset();
+    passwordChangeRequired = false;
+    passwordPanel.hidden = true;
+    setStatus("Password updated. Use the new password next time you sign in.");
+  }
+
+  loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!client) return;
+    const email = String(loginForm.elements.email.value || "").trim();
+    const password = String(loginForm.elements.password.value || "");
+    setStatus("Checking admin access...");
+
+    const { error } = await client.auth.signInWithPassword({ email, password });
+    if (error) {
+      setStatus(messageFromError(error, "Sign in failed. Check the email and password."));
+      return;
+    }
+
+    loginForm.reset();
+    await refreshSession();
+  });
 
   signOut.addEventListener("click", async () => {
     if (!client) return;
@@ -495,15 +689,32 @@
     await refreshSession();
   });
 
+  forgotPassword.addEventListener("click", sendPasswordReset);
+  changePasswordForm.addEventListener("submit", updatePassword);
+
+  client?.auth.onAuthStateChange((event) => {
+    if (event === "PASSWORD_RECOVERY") {
+      passwordChangeRequired = true;
+      passwordPanel.hidden = false;
+      setStatus("Enter a new password below to finish resetting your password.");
+      window.requestAnimationFrame(() => {
+        const input = changePasswordForm.querySelector("input[name='new_password']");
+        if (input) input.focus();
+      });
+    }
+  });
+
   newButton.addEventListener("click", () => {
     editingId = NEW_SPONSOR_ID;
     deletePendingId = "";
+    statusPendingId = "";
     renderRows();
     focusEditor();
   });
 
   adminSearch.addEventListener("input", () => {
     deletePendingId = "";
+    statusPendingId = "";
     renderRows();
   });
 
@@ -530,6 +741,7 @@
     if (action === "edit") {
       editingId = id;
       deletePendingId = "";
+      statusPendingId = "";
       renderRows();
       focusEditor();
       return;
@@ -538,11 +750,25 @@
     if (action === "cancel-edit") {
       editingId = "";
       deletePendingId = "";
+      statusPendingId = "";
       renderRows();
       return;
     }
 
     if (action === "toggle-status") {
+      statusPendingId = id;
+      deletePendingId = "";
+      renderRows();
+      return;
+    }
+
+    if (action === "cancel-status") {
+      statusPendingId = "";
+      renderRows();
+      return;
+    }
+
+    if (action === "confirm-status") {
       toggleSponsorStatus(id);
       return;
     }
@@ -570,12 +796,14 @@
 
     if (action === "ask-delete") {
       deletePendingId = id;
+      statusPendingId = "";
       renderRows();
       return;
     }
 
     if (action === "cancel-delete") {
       deletePendingId = "";
+      statusPendingId = "";
       renderRows();
       return;
     }
@@ -585,7 +813,29 @@
     }
   });
 
+  statusModalRoot.addEventListener("click", (event) => {
+    const control = event.target.closest("[data-action]");
+    if (!control || !statusModalRoot.contains(control)) return;
+    const action = control.dataset.action;
+
+    if (action === "cancel-status") {
+      statusPendingId = "";
+      renderRows();
+      return;
+    }
+
+    if (action === "confirm-status") {
+      toggleSponsorStatus(control.dataset.id);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !statusPendingId) return;
+    statusPendingId = "";
+    renderRows();
+  });
+
   refreshSession().catch((error) => {
-    setStatus(error.message || "Admin workspace unavailable.");
+    setStatus(messageFromError(error, "Admin workspace unavailable."));
   });
 })();

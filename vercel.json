@@ -2,16 +2,6 @@
   "cleanUrls": true,
   "redirects": [
     {
-      "source": "/admin",
-      "destination": "/",
-      "permanent": false
-    },
-    {
-      "source": "/admin.html",
-      "destination": "/",
-      "permanent": false
-    },
-    {
       "source": "/cart",
       "destination": "https://shop.michaelberryshow.com/cart",
       "permanent": false

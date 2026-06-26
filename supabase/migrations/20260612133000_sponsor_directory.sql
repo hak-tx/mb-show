@@ -2,6 +2,7 @@ create extension if not exists pgcrypto with schema extensions;
 create extension if not exists pg_trgm with schema extensions;
 create extension if not exists unaccent with schema extensions;
 create extension if not exists vector with schema extensions;
+create extension if not exists citext with schema extensions;
 
 do $$
 begin
@@ -20,6 +21,13 @@ end $$;
 create table if not exists public.admin_users (
   user_id uuid primary key references auth.users (id) on delete cascade,
   role text not null default 'admin' check (role in ('admin', 'owner')),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.admin_allowed_emails (
+  email extensions.citext primary key,
+  role text not null default 'admin' check (role in ('admin', 'owner')),
+  active boolean not null default true,
   created_at timestamptz not null default now()
 );
 
@@ -54,16 +62,7 @@ create table if not exists public.sponsors (
   imported_at timestamptz not null default now(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  search_document tsvector generated always as (
-    setweight(to_tsvector('english', coalesce(name, '')), 'A') ||
-    setweight(to_tsvector('english', coalesce(category, '')), 'A') ||
-    setweight(to_tsvector('english', array_to_string(coalesce(services, '{}'), ' ')), 'B') ||
-    setweight(to_tsvector('english', array_to_string(coalesce(keywords, '{}'), ' ')), 'B') ||
-    setweight(to_tsvector('english', array_to_string(coalesce(admin_keywords, '{}'), ' ')), 'B') ||
-    setweight(to_tsvector('english', array_to_string(coalesce(service_areas, '{}'), ' ')), 'C') ||
-    setweight(to_tsvector('english', coalesce(description, '')), 'C') ||
-    setweight(to_tsvector('english', array_to_string(coalesce(source_notes, '{}'), ' ')), 'D')
-  ) stored
+  search_document tsvector not null default ''::tsvector
 );
 
 create table if not exists public.sponsor_search_terms (
@@ -95,16 +94,43 @@ create index if not exists sponsors_name_trgm_idx on public.sponsors using gin (
 create index if not exists sponsors_keywords_idx on public.sponsors using gin (keywords);
 create index if not exists sponsors_service_areas_idx on public.sponsors using gin (service_areas);
 create index if not exists sponsor_search_terms_phrase_idx on public.sponsor_search_terms using gin (lower(phrase) gin_trgm_ops);
+create index if not exists sponsor_leads_sponsor_id_idx on public.sponsor_leads (sponsor_id);
 
 create or replace function public.touch_updated_at()
 returns trigger
 language plpgsql
+set search_path = public, pg_temp
 as $$
 begin
   new.updated_at = now();
   return new;
 end;
 $$;
+
+create or replace function public.refresh_sponsor_search_document()
+returns trigger
+language plpgsql
+set search_path = public, extensions, pg_temp
+as $$
+begin
+  new.search_document :=
+    setweight(to_tsvector('english', coalesce(new.name, '')), 'A') ||
+    setweight(to_tsvector('english', coalesce(new.category, '')), 'A') ||
+    setweight(to_tsvector('english', array_to_string(coalesce(new.services, '{}'), ' ')), 'B') ||
+    setweight(to_tsvector('english', array_to_string(coalesce(new.keywords, '{}'), ' ')), 'B') ||
+    setweight(to_tsvector('english', array_to_string(coalesce(new.admin_keywords, '{}'), ' ')), 'B') ||
+    setweight(to_tsvector('english', array_to_string(coalesce(new.service_areas, '{}'), ' ')), 'C') ||
+    setweight(to_tsvector('english', coalesce(new.description, '')), 'C') ||
+    setweight(to_tsvector('english', array_to_string(coalesce(new.source_notes, '{}'), ' ')), 'D');
+  return new;
+end;
+$$;
+
+drop trigger if exists sponsors_refresh_search_document on public.sponsors;
+create trigger sponsors_refresh_search_document
+before insert or update of name, category, services, keywords, admin_keywords, service_areas, description, source_notes
+on public.sponsors
+for each row execute function public.refresh_sponsor_search_document();
 
 drop trigger if exists sponsors_touch_updated_at on public.sponsors;
 create trigger sponsors_touch_updated_at
@@ -116,24 +142,71 @@ create trigger sponsor_search_terms_touch_updated_at
 before update on public.sponsor_search_terms
 for each row execute function public.touch_updated_at();
 
+create schema if not exists app_private;
+
+create or replace function app_private.is_sponsor_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+  select (select auth.uid()) is not null and (
+    exists (
+      select 1
+      from public.admin_users
+      where user_id = (select auth.uid())
+    )
+    or exists (
+      select 1
+      from public.admin_allowed_emails
+      where active is true
+        and lower(email::text) = lower(coalesce((select auth.jwt() ->> 'email'), ''))
+    )
+  );
+$$;
+
+revoke all on schema app_private from public;
+grant usage on schema app_private to authenticated;
+revoke all on function app_private.is_sponsor_admin() from public;
+grant execute on function app_private.is_sponsor_admin() to authenticated;
+
 create or replace function public.is_sponsor_admin()
 returns boolean
 language sql
 stable
 security invoker
+set search_path = public, app_private, pg_temp
 as $$
-  select exists (
-    select 1
-    from public.admin_users
-    where user_id = (select auth.uid())
+  select app_private.is_sponsor_admin();
+$$;
+
+revoke all on function public.is_sponsor_admin() from public;
+grant execute on function public.is_sponsor_admin() to authenticated;
+
+create or replace function public.current_sponsor_admin_status()
+returns jsonb
+language sql
+stable
+security invoker
+set search_path = public, app_private, extensions, pg_temp
+as $$
+  select jsonb_build_object(
+    'is_admin', app_private.is_sponsor_admin(),
+    'email', lower(coalesce((select auth.jwt() ->> 'email'), '')),
+    'role', case when app_private.is_sponsor_admin() then 'admin' else null end
   );
 $$;
+
+revoke all on function public.current_sponsor_admin_status() from public, anon;
+grant execute on function public.current_sponsor_admin_status() to authenticated;
 
 create or replace function public.expand_sponsor_query(search_query text)
 returns text
 language sql
 stable
 security invoker
+set search_path = public, pg_temp
 as $$
   select trim(
     concat_ws(
@@ -266,60 +339,117 @@ on conflict (phrase) do update set
   updated_at = now();
 
 alter table public.admin_users enable row level security;
+alter table public.admin_allowed_emails enable row level security;
 alter table public.sponsors enable row level security;
 alter table public.sponsor_search_terms enable row level security;
 alter table public.sponsor_leads enable row level security;
 
-drop policy if exists "Admins can read admin users" on public.admin_users;
-create policy "Admins can read admin users"
-on public.admin_users for select
+drop policy if exists "Admins can manage admin users" on public.admin_users;
+create policy "Admins can manage admin users"
+on public.admin_users for all
 to authenticated
-using (public.is_sponsor_admin());
+using (app_private.is_sponsor_admin())
+with check (app_private.is_sponsor_admin());
+
+drop policy if exists "Admins can manage allowed emails" on public.admin_allowed_emails;
+create policy "Admins can manage allowed emails"
+on public.admin_allowed_emails for all
+to authenticated
+using (app_private.is_sponsor_admin())
+with check (app_private.is_sponsor_admin());
 
 drop policy if exists "Public can read active sponsors" on public.sponsors;
-create policy "Public can read active sponsors"
+drop policy if exists "Admins can manage sponsors" on public.sponsors;
+drop policy if exists "Sponsors readable by public and admins" on public.sponsors;
+drop policy if exists "Admins can insert sponsors" on public.sponsors;
+drop policy if exists "Admins can update sponsors" on public.sponsors;
+drop policy if exists "Admins can delete sponsors" on public.sponsors;
+
+create policy "Sponsors readable by public and admins"
 on public.sponsors for select
 to anon, authenticated
-using (sponsor_status = 'active' or public.is_sponsor_admin());
+using (sponsor_status = 'active' or app_private.is_sponsor_admin());
 
-drop policy if exists "Admins can manage sponsors" on public.sponsors;
-create policy "Admins can manage sponsors"
-on public.sponsors for all
+create policy "Admins can insert sponsors"
+on public.sponsors for insert
 to authenticated
-using (public.is_sponsor_admin())
-with check (public.is_sponsor_admin());
+with check (app_private.is_sponsor_admin());
+
+create policy "Admins can update sponsors"
+on public.sponsors for update
+to authenticated
+using (app_private.is_sponsor_admin())
+with check (app_private.is_sponsor_admin());
+
+create policy "Admins can delete sponsors"
+on public.sponsors for delete
+to authenticated
+using (app_private.is_sponsor_admin());
 
 drop policy if exists "Public can read search terms" on public.sponsor_search_terms;
+drop policy if exists "Admins can manage search terms" on public.sponsor_search_terms;
+drop policy if exists "Admins can insert search terms" on public.sponsor_search_terms;
+drop policy if exists "Admins can update search terms" on public.sponsor_search_terms;
+drop policy if exists "Admins can delete search terms" on public.sponsor_search_terms;
 create policy "Public can read search terms"
 on public.sponsor_search_terms for select
 to anon, authenticated
 using (true);
 
-drop policy if exists "Admins can manage search terms" on public.sponsor_search_terms;
-create policy "Admins can manage search terms"
-on public.sponsor_search_terms for all
+create policy "Admins can insert search terms"
+on public.sponsor_search_terms for insert
 to authenticated
-using (public.is_sponsor_admin())
-with check (public.is_sponsor_admin());
+with check (app_private.is_sponsor_admin());
+
+create policy "Admins can update search terms"
+on public.sponsor_search_terms for update
+to authenticated
+using (app_private.is_sponsor_admin())
+with check (app_private.is_sponsor_admin());
+
+create policy "Admins can delete search terms"
+on public.sponsor_search_terms for delete
+to authenticated
+using (app_private.is_sponsor_admin());
 
 drop policy if exists "Public can create lead events" on public.sponsor_leads;
 create policy "Public can create lead events"
 on public.sponsor_leads for insert
 to anon, authenticated
-with check (true);
+with check (
+  lead_type in ('click', 'details', 'phone', 'website')
+  and jsonb_typeof(metadata) = 'object'
+  and (
+    sponsor_id is null
+    or exists (
+      select 1
+      from public.sponsors
+      where id = sponsor_id
+        and sponsor_status = 'active'
+    )
+  )
+);
 
 drop policy if exists "Admins can read lead events" on public.sponsor_leads;
 create policy "Admins can read lead events"
 on public.sponsor_leads for select
 to authenticated
-using (public.is_sponsor_admin());
+using (app_private.is_sponsor_admin());
 
 grant usage on schema public to anon, authenticated;
+revoke all on public.admin_users from anon, authenticated;
+revoke all on public.admin_allowed_emails from anon, authenticated;
+revoke all on public.sponsors from anon, authenticated;
+revoke all on public.sponsor_search_terms from anon, authenticated;
+revoke all on public.sponsor_leads from anon, authenticated;
+grant select, insert, update, delete on public.admin_users to authenticated;
+grant select, insert, update, delete on public.admin_allowed_emails to authenticated;
 grant select on public.sponsors to anon, authenticated;
+grant insert, update, delete on public.sponsors to authenticated;
 grant select on public.sponsor_search_terms to anon, authenticated;
+grant insert, update, delete on public.sponsor_search_terms to authenticated;
 grant insert on public.sponsor_leads to anon, authenticated;
-grant all on public.sponsors to authenticated;
-grant all on public.sponsor_search_terms to authenticated;
 grant select on public.sponsor_leads to authenticated;
+grant usage, select on all sequences in schema public to authenticated;
 grant execute on function public.search_sponsors(text, text, text, text, integer) to anon, authenticated;
 grant execute on function public.expand_sponsor_query(text) to anon, authenticated;

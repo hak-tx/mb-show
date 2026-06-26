@@ -1,0 +1,4 @@
+/cart https://shop.michaelberryshow.com/cart 302
+/products/* https://shop.michaelberryshow.com/products/:splat 302
+/collections/* https://shop.michaelberryshow.com/collections/:splat 302
+/pages/* https://shop.michaelberryshow.com/pages/:splat 302

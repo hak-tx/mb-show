@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>MB Show Sponsor Admin</title>
-    <link rel="stylesheet" href="./styles.css?v=28">
+    <link rel="stylesheet" href="./styles.css?v=39">
   </head>
   <body class="admin-body">
     <header class="topbar admin-header">
@@ -39,7 +39,38 @@
 
         <p class="admin-status" id="admin-status">Loading sponsor list.</p>
 
-        <div class="admin-summary">
+        <div class="admin-password-panel" id="admin-password-panel" hidden>
+          <div>
+            <strong>Set your permanent password</strong>
+            <span>If you signed in with a temporary password, update it before managing listings.</span>
+            <ul class="password-requirements" id="password-requirements">
+              <li>At least 12 characters</li>
+              <li>One uppercase and one lowercase letter</li>
+              <li>One number</li>
+              <li>One symbol, such as !, #, or ?</li>
+            </ul>
+          </div>
+          <form class="admin-password-form" id="change-password-form">
+            <label>
+              <span>New password</span>
+              <input
+                name="new_password"
+                type="password"
+                autocomplete="new-password"
+                minlength="12"
+                aria-describedby="password-requirements"
+                required
+              >
+            </label>
+            <label>
+              <span>Confirm password</span>
+              <input name="confirm_password" type="password" autocomplete="new-password" minlength="12" required>
+            </label>
+            <button class="button secondary" type="submit">Update password</button>
+          </form>
+        </div>
+
+        <div class="admin-summary" id="admin-summary" hidden>
           <div>
             <span>Total sponsors</span>
             <strong id="stat-total">0</strong>
@@ -49,14 +80,32 @@
             <strong id="stat-active">0</strong>
           </div>
           <div>
-            <span>Premium ready</span>
-            <strong id="stat-premium">0</strong>
-          </div>
-          <div>
             <span>Inactive listings</span>
             <strong id="stat-inactive">0</strong>
           </div>
         </div>
+      </section>
+
+      <section class="content-band admin-panel admin-auth-panel" id="auth-panel">
+        <div>
+          <p class="eyebrow">Password access</p>
+          <h2>Sign in to manage sponsors</h2>
+          <p>
+            Only approved show admins can add, edit, deactivate, or delete sponsor listings.
+          </p>
+        </div>
+        <form class="admin-login-form" id="admin-login-form">
+          <label>
+            <span>Email</span>
+            <input id="admin-email" name="email" type="email" autocomplete="email" required>
+          </label>
+          <label>
+            <span>Password</span>
+            <input id="admin-password" name="password" type="password" autocomplete="current-password" required>
+          </label>
+          <button class="button primary" type="submit">Sign in</button>
+          <button class="button secondary" id="forgot-password" type="button">Email password reset link</button>
+        </form>
       </section>
 
       <section class="content-band admin-panel" id="editor-panel" hidden>
@@ -83,11 +132,10 @@
           <table class="admin-table">
             <thead>
               <tr>
+                <th>Status</th>
                 <th>Sponsor</th>
                 <th>Category</th>
                 <th>Phone / website</th>
-                <th>Search words</th>
-                <th>Status</th>
                 <th></th>
               </tr>
             </thead>
@@ -98,7 +146,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./config.js"></script>
-    <script src="./scripts/admin-app.js"></script>
+    <script src="./config.js?v=2"></script>
+    <script src="./scripts/admin-app.js?v=13"></script>
   </body>
 </html>

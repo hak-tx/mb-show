@@ -1,5 +1,6 @@
 (function () {
   const config = window.MB_SHOW_SUPABASE || {};
+  const directoryConfig = window.MB_SHOW_DIRECTORY || {};
   const form = document.querySelector("#sponsor-search-form");
   const input = document.querySelector("#sponsor-search");
   const list = document.querySelector("#sponsor-list");
@@ -126,6 +127,11 @@
 
   let sponsors = [];
   let activeRows = [];
+  let liveSponsorRows = null;
+  let liveSponsorRowsPromise = null;
+  let mobileSearchLocked = false;
+  const sponsorCacheKey = "mb-show-sponsor-directory-v3";
+  const sponsorCacheMs = Number(directoryConfig.browserCacheMs || 60 * 60 * 1000);
 
   const directoryState = {
     query: "",
@@ -134,6 +140,45 @@
     category: "",
     resultMode: "match",
   };
+
+  function isMobileSearchViewport() {
+    return window.matchMedia("(max-width: 720px)").matches;
+  }
+
+  function focusInputWithoutScroll() {
+    try {
+      input.focus({ preventScroll: true });
+    } catch (_) {
+      input.focus();
+    }
+
+    const cursorPosition = input.value.length;
+    if (typeof input.setSelectionRange === "function") {
+      input.setSelectionRange(cursorPosition, cursorPosition);
+    }
+  }
+
+  function lockMobileSearchToTop() {
+    if (!isMobileSearchViewport()) return;
+    mobileSearchLocked = true;
+    document.body.classList.add("sponsor-search-locked");
+
+    const targetTop = window.scrollY + form.getBoundingClientRect().top;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const nextTop = Math.max(0, Math.min(targetTop, maxScroll));
+
+    if (Math.abs(window.scrollY - nextTop) > 6) {
+      window.scrollTo({
+        top: nextTop,
+        behavior: "auto",
+      });
+    }
+  }
+
+  function unlockMobileSearch() {
+    mobileSearchLocked = false;
+    document.body.classList.remove("sponsor-search-locked");
+  }
 
   function slugify(value) {
     return String(value || "")
@@ -258,7 +303,6 @@
       { value: (sponsor.services || []).join(" "), weight: 6 },
       { value: [...(sponsor.keywords || []), ...(sponsor.admin_keywords || [])].join(" "), weight: 5 },
       { value: sponsor.description, weight: 3 },
-      { value: [...(sponsor.service_areas || []), ...(sponsor.cities || []), ...(sponsor.states || [])].join(" "), weight: 1 },
     ];
     const phoneDigits = String(sponsor.phone || "").replace(/\D/g, "");
 
@@ -282,46 +326,148 @@
   }
 
   function sponsorMatchesFilters(sponsor) {
-    const matchesState =
-      !directoryState.state ||
-      sponsor.states.includes(directoryState.state) ||
-      sponsor.service_areas.includes(directoryState.state);
-    const matchesArea = !directoryState.area || sponsor.service_areas.includes(directoryState.area);
     const matchesCategory = !directoryState.category || sponsor.category === directoryState.category;
-    return matchesState && matchesArea && matchesCategory;
+    return matchesCategory;
   }
 
   function sponsorMatchesQueryLocation(sponsor) {
-    const query = directoryState.query.toLowerCase();
-    const areaText = [...sponsor.service_areas, ...sponsor.cities, ...sponsor.states].join(" ").toLowerCase();
-    if (query.includes("houston") && !areaText.includes("houston")) return false;
-    if (query.includes("texas") && !areaText.includes("texas")) return false;
-    if (query.includes("louisiana") && !areaText.includes("louisiana")) return false;
+    void sponsor;
+    // Do not filter public results by claimed service area. Many sponsors serve
+    // different territories, and listeners should confirm coverage with the sponsor.
     return true;
   }
 
-  async function fetchFromSupabase() {
+  function supabaseRestHeaders(extraHeaders = {}) {
+    const headers = {
+      apikey: config.publishableKey,
+      ...extraHeaders,
+    };
+
+    if (!String(config.publishableKey).startsWith("sb_publishable_")) {
+      headers.authorization = `Bearer ${config.publishableKey}`;
+    }
+
+    return headers;
+  }
+
+  function readSponsorCache() {
+    if (!window.localStorage || sponsorCacheMs <= 0) return null;
+    try {
+      const cached = JSON.parse(window.localStorage.getItem(sponsorCacheKey) || "null");
+      if (!cached || !Array.isArray(cached.sponsors) || !cached.cachedAt) return null;
+      if (Date.now() - Number(cached.cachedAt) > sponsorCacheMs) return null;
+      return cached.sponsors.map(normalizeSponsor);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function writeSponsorCache(rows) {
+    if (!window.localStorage || sponsorCacheMs <= 0 || !Array.isArray(rows)) return;
+    try {
+      window.localStorage.setItem(
+        sponsorCacheKey,
+        JSON.stringify({
+          cachedAt: Date.now(),
+          sponsors: rows,
+        }),
+      );
+    } catch (_) {}
+  }
+
+  function sponsorEndpoint() {
+    return directoryConfig.sponsorEndpoint || "/api/sponsors";
+  }
+
+  async function fetchFromSponsorEndpoint() {
+    const response = await fetch(sponsorEndpoint(), {
+      method: "GET",
+      headers: { accept: "application/json" },
+    });
+
+    if (!response.ok) throw new Error(`Sponsor endpoint responded ${response.status}`);
+    const data = await response.json();
+    const rows = Array.isArray(data.sponsors) ? data.sponsors : [];
+    return rows.map(normalizeSponsor);
+  }
+
+  async function fetchFromSupabaseDirect() {
     if (!config.url || !config.publishableKey) return null;
 
-    const response = await fetch(`${config.url}/rest/v1/rpc/search_sponsors`, {
-      method: "POST",
-      headers: {
-        apikey: config.publishableKey,
-        authorization: `Bearer ${config.publishableKey}`,
-        "content-type": "application/json",
+    const selectFields = [
+      "id",
+      "slug",
+      "name",
+      "website_url",
+      "phone",
+      "category",
+      "description",
+      "services",
+      "service_areas",
+      "cities",
+      "states",
+      "keywords",
+      "admin_keywords",
+      "premium_tier",
+      "premium_rank",
+      "is_featured",
+      "sponsor_status",
+      "updated_at",
+    ].join(",");
+
+    const response = await fetch(
+      `${config.url}/rest/v1/sponsors?select=${encodeURIComponent(selectFields)}&sponsor_status=eq.active&order=name.asc`,
+      {
+        method: "GET",
+        headers: supabaseRestHeaders(),
       },
-      body: JSON.stringify({
-        search_query: directoryState.query,
-        city_filter: null,
-        state_filter: null,
-        area_filter: null,
-        result_limit: 100,
-      }),
-    });
+    );
 
     if (!response.ok) return null;
     const rows = await response.json();
     return rows.map(normalizeSponsor);
+  }
+
+  async function getLiveSponsorRows() {
+    if (liveSponsorRows) return liveSponsorRows;
+
+    const cachedRows = readSponsorCache();
+    if (cachedRows) {
+      liveSponsorRows = cachedRows;
+      return liveSponsorRows;
+    }
+
+    if (liveSponsorRowsPromise) return liveSponsorRowsPromise;
+
+    liveSponsorRowsPromise = fetchFromSponsorEndpoint()
+      .catch(() => fetchFromSupabaseDirect())
+      .then((rows) => {
+        if (Array.isArray(rows) && rows.length) {
+          liveSponsorRows = rows;
+          writeSponsorCache(rows);
+        }
+        return liveSponsorRows;
+      })
+      .finally(() => {
+        liveSponsorRowsPromise = null;
+      });
+
+    return liveSponsorRowsPromise;
+  }
+
+  async function recordSponsorLead(link) {
+    if (!config.url || !config.publishableKey) return;
+
+    await fetch(`${config.url}/rest/v1/sponsor_leads`, {
+      method: "POST",
+      headers: supabaseRestHeaders({ "content-type": "application/json" }),
+      body: JSON.stringify({
+        search_query: directoryState.query,
+        lead_type: "click",
+        metadata: { sponsor_slug: link.dataset.sponsorSlug },
+      }),
+      keepalive: true,
+    }).catch(() => {});
   }
 
   async function loadFallbackSponsors() {
@@ -365,8 +511,6 @@
   function resultSummary(total, start, end) {
     const parts = [];
     if (directoryState.query) parts.push(`matching "${directoryState.query}"`);
-    if (directoryState.state) parts.push(`in ${directoryState.state}`);
-    if (directoryState.area) parts.push(`around ${directoryState.area}`);
     if (directoryState.category) parts.push(`in ${directoryState.category}`);
     const suffix = parts.length ? ` ${parts.join(", ")}` : "";
 
@@ -377,12 +521,13 @@
   }
 
   function sponsorCard(sponsor) {
-    const services = (sponsor.services || []).slice(0, 5).join(" · ");
-    const areas = (sponsor.service_areas || []).slice(0, 4).join(" · ");
-    const states = (sponsor.states || []).join(" · ");
-    const meta = [areas, states && `State: ${states}`].filter(Boolean).join(" | ");
+    const services = (sponsor.services || []).join(" · ");
     const detailsId = `sponsor-details-${escapeHtml(sponsor.slug || slugify(sponsor.name))}`;
     const website = sponsor.website_url || "";
+    const phone = String(sponsor.phone || "").trim();
+    const phoneLine = phone
+      ? `<span class="sponsor-card-phone">${escapeHtml(phone)}</span>`
+      : "";
     const websiteLink = website
       ? `<a class="sponsor-card-website" href="${escapeHtml(website)}" target="_blank" rel="noreferrer" data-sponsor-slug="${escapeHtml(sponsor.slug || "")}">Website</a>`
       : `<span class="sponsor-card-website is-disabled">No website</span>`;
@@ -390,7 +535,7 @@
     return `<article class="sponsor-card" data-sponsor-card>
       <button class="sponsor-card-toggle" type="button" aria-expanded="false" aria-controls="${detailsId}">
         <span class="sponsor-card-name">${escapeHtml(sponsor.name)}</span>
-        <span class="sponsor-card-phone">${escapeHtml(sponsor.phone || "Phone unavailable")}</span>
+        ${phoneLine}
         <span class="sponsor-card-cue">Details</span>
       </button>
       ${websiteLink}
@@ -404,10 +549,6 @@
           <div>
             <dt>Services</dt>
             <dd>${escapeHtml(services || "Show sponsor")}</dd>
-          </div>
-          <div>
-            <dt>Service area</dt>
-            <dd>${escapeHtml(meta || "See sponsor website")}</dd>
           </div>
         </dl>
       </div>
@@ -435,9 +576,8 @@
     moreResults.innerHTML = "";
   }
 
-  async function updateSponsors() {
-    const remoteRows = await fetchFromSupabase();
-    const rows = remoteRows || sponsors;
+  function updateSponsors() {
+    const rows = liveSponsorRows || sponsors;
     activeRows = filterSponsors(rows);
     renderRows();
   }
@@ -449,21 +589,7 @@
   list.addEventListener("click", async (event) => {
     const link = event.target.closest("a[data-sponsor-slug]");
     if (link) {
-      if (!config.url || !config.publishableKey) return;
-      await fetch(`${config.url}/rest/v1/sponsor_leads`, {
-        method: "POST",
-        headers: {
-          apikey: config.publishableKey,
-          authorization: `Bearer ${config.publishableKey}`,
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          search_query: directoryState.query,
-          lead_type: "click",
-          metadata: { sponsor_slug: link.dataset.sponsorSlug },
-        }),
-        keepalive: true,
-      }).catch(() => {});
+      await recordSponsorLead(link);
       return;
     }
 
@@ -485,6 +611,21 @@
     resetPageAndUpdate();
   });
 
+  input.addEventListener("pointerdown", (event) => {
+    if (!isMobileSearchViewport() || mobileSearchLocked) return;
+    event.preventDefault();
+    lockMobileSearchToTop();
+    focusInputWithoutScroll();
+  });
+
+  input.addEventListener("focus", () => {
+    if (!mobileSearchLocked) lockMobileSearchToTop();
+  });
+
+  input.addEventListener("blur", () => {
+    unlockMobileSearch();
+  });
+
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     directoryState.query = input.value.trim();
@@ -495,6 +636,10 @@
     .then((rows) => {
       sponsors = rows;
       renderFilters();
+      updateSponsors();
+      return getLiveSponsorRows();
+    })
+    .then(() => {
       updateSponsors();
     })
     .catch(() => {

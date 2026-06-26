@@ -7,6 +7,8 @@
     "sponsors:enrich": "node scripts/enrich-sponsors.mjs",
     "sponsors:seed": "node scripts/generate-sponsor-seed-sql.mjs",
     "sponsors:build": "npm run sponsors:scrape && npm run sponsors:enrich && npm run sponsors:seed",
+    "cf:build": "node scripts/build-cloudflare-pages.mjs",
+    "cf:deploy": "npm run cf:build && npx wrangler pages deploy .cloudflare-pages --project-name cf-michaelberryshow-com --branch main --commit-dirty=true",
     "dev": "vercel dev",
     "deploy": "vercel deploy"
   },

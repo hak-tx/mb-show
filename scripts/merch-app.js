@@ -8,8 +8,6 @@
     const card = document.createElement("a");
     card.className = "product-card";
     card.href = product.url || config.newReleasesUrl || "https://shop.michaelberryshow.com/collections/new-releases";
-    card.target = "_blank";
-    card.rel = "noreferrer";
 
     const image = document.createElement("img");
     image.src = product.image || "";

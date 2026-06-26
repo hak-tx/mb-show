@@ -1,7 +1,7 @@
 {
   "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
   "scraped_at": "2026-06-12T18:22:32.016Z",
-  "sponsor_count": 80,
+  "sponsor_count": 81,
   "sponsors": [
     {
       "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
@@ -124,20 +124,20 @@
     {
       "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
       "source_published_at": "2026-03-27",
-      "name": "Byrna Less Lethal Launchers",
-      "website_url": "https://byrna.com/",
-      "phone": "",
-      "source_notes": []
-    },
-    {
-      "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
-      "source_published_at": "2026-03-27",
       "name": "Brookway Landscape and Irrigation",
       "website_url": "https://brookway.com/",
       "phone": "(713) 466-1420",
       "source_notes": [
         "(713) 466-1420"
       ]
+    },
+    {
+      "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
+      "source_published_at": "2026-03-27",
+      "name": "Byrna Less Lethal Launchers",
+      "website_url": "https://byrna.com/",
+      "phone": "",
+      "source_notes": []
     },
     {
       "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
@@ -223,6 +223,16 @@
     {
       "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
       "source_published_at": "2026-03-27",
+      "name": "Dr. Guy Lewis and the Texas Center for Cosmetic Dentistry",
+      "website_url": "http://www.lovethatsmile.com/",
+      "phone": "281-36-SMILE",
+      "source_notes": [
+        "281-36-SMILE"
+      ]
+    },
+    {
+      "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
+      "source_published_at": "2026-03-27",
       "name": "Dr. John Cottingham, MDVIP Concierge Primary Doctor",
       "website_url": "https://www.mdvip.com/doctors/johncottinghammd",
       "phone": "713-766-6986",
@@ -291,6 +301,16 @@
     {
       "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
       "source_published_at": "2026-03-27",
+      "name": "Gallery Furniture (& Mattresses)",
+      "website_url": "https://www.galleryfurniture.com/",
+      "phone": "",
+      "source_notes": [
+        "Added from user request on 2026-06-24. Website supplied by user: www.GalleryFurniture.com."
+      ]
+    },
+    {
+      "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
+      "source_published_at": "2026-03-27",
       "name": "Garage Door Doctor.Biz",
       "website_url": "https://garagedoordoctor.biz/",
       "phone": "281-410-5249",
@@ -339,16 +359,6 @@
     {
       "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
       "source_published_at": "2026-03-27",
-      "name": "Dr. Guy Lewis and the Texas Center for Cosmetic Dentistry",
-      "website_url": "http://www.lovethatsmile.com/",
-      "phone": "281-36-SMILE",
-      "source_notes": [
-        "281-36-SMILE"
-      ]
-    },
-    {
-      "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
-      "source_published_at": "2026-03-27",
       "name": "Hawthorne Capital",
       "website_url": "http://www.hawthornecapital.com/",
       "phone": "832-205-3444",
@@ -359,21 +369,11 @@
     {
       "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
       "source_published_at": "2026-03-27",
-      "name": "Heritage Legacy Films",
-      "website_url": "http://www.yourheritagefilm.com/",
-      "phone": "713-893-8341",
+      "name": "Heritage Films",
+      "website_url": "https://yourheritagefilm.com/",
+      "phone": "(713) 893-8341",
       "source_notes": [
-        "713-893-8341"
-      ]
-    },
-    {
-      "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
-      "source_published_at": "2026-03-27",
-      "name": "Hometown Hero CBD",
-      "website_url": "https://hometownhero.com/",
-      "phone": "(512) 551-0345",
-      "source_notes": [
-        "(512) 551-0345"
+        "(713) 893-8341"
       ]
     },
     {
@@ -699,13 +699,13 @@
       "source_notes": []
     },
     {
-      "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
-      "source_published_at": "2026-03-27",
-      "name": "TexasRenters.com",
-      "website_url": "http://www.texasrenters.com/",
-      "phone": "281-407-3818",
+      "source_url": "https://www.texaspools.com/",
+      "source_published_at": null,
+      "name": "Texas Pools",
+      "website_url": "https://www.texaspools.com/",
+      "phone": "281-367-4660",
       "source_notes": [
-        "281-407-3818"
+        "281-367-4660"
       ]
     },
     {
@@ -716,6 +716,16 @@
       "phone": "844-TEX-RENT",
       "source_notes": [
         "844-TEX-RENT"
+      ]
+    },
+    {
+      "source_url": "https://ktrh.iheart.com/featured/michael-berry/content/2023-10-12-michael-berry-show-show-sponsors/",
+      "source_published_at": "2026-03-27",
+      "name": "TexasRenters.com",
+      "website_url": "http://www.texasrenters.com/",
+      "phone": "281-407-3818",
+      "source_notes": [
+        "281-407-3818"
       ]
     },
     {

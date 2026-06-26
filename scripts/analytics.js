@@ -20,4 +20,10 @@
 
   window.gtag("js", new Date());
   window.gtag("config", measurementId);
+
+  const url = new URL(window.location.href);
+
+  if (url.search) {
+    window.history.replaceState({}, document.title, `${url.pathname}${url.hash}`);
+  }
 })();
