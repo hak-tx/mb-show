@@ -224,7 +224,7 @@ main {
   flex-direction: column;
   justify-content: center;
   min-height: 430px;
-  padding: clamp(26px, 3.6vw, 42px);
+  padding: clamp(24px, 2vw, 30px);
   color: var(--white);
   background: var(--navy);
 }
@@ -261,19 +261,21 @@ h1 {
   display: flex;
   width: 100%;
   max-width: none;
-  margin: 0 0 26px;
+  margin: 0 0 18px;
   align-items: center;
   justify-content: center;
 }
 
 .hero-logo img {
   display: block;
-  width: min(100%, 520px);
-  max-height: 560px;
+  width: 100%;
+  height: clamp(360px, 30vw, 400px);
+  max-height: none;
   margin-inline: auto;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center 44%;
   border-radius: 8px;
-  background: var(--white);
+  background: transparent;
 }
 
 .lede {
@@ -2115,8 +2117,10 @@ body.has-admin-modal {
   }
 
   .hero-logo img {
-    width: min(100%, 620px);
+    width: 100%;
+    height: auto;
     max-height: none;
+    object-fit: contain;
   }
 
   .section-heading h2 {
