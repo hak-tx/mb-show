@@ -205,10 +205,11 @@ main {
 }
 
 .hero {
+  --hero-panel-height: clamp(545px, 39vw, 570px);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .hero-copy,
@@ -222,8 +223,10 @@ main {
 .hero-copy {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  min-height: 430px;
+  justify-content: flex-start;
+  height: var(--hero-panel-height);
+  min-height: 0;
+  overflow: hidden;
   padding: clamp(24px, 2vw, 30px);
   color: var(--white);
   background: var(--navy);
@@ -259,8 +262,10 @@ h1 {
 
 .hero-logo {
   display: flex;
+  flex: 1 1 auto;
   width: 100%;
   max-width: none;
+  min-height: 0;
   margin: 0 0 18px;
   align-items: center;
   justify-content: center;
@@ -269,21 +274,22 @@ h1 {
 .hero-logo img {
   display: block;
   width: 100%;
-  height: clamp(360px, 30vw, 400px);
+  height: 100%;
   max-height: none;
   margin-inline: auto;
-  object-fit: cover;
-  object-position: center 44%;
+  object-fit: contain;
+  object-position: center;
   border-radius: 8px;
   background: transparent;
 }
 
 .lede {
+  flex: 0 0 auto;
   max-width: 590px;
   margin-bottom: 0;
   color: rgba(255, 255, 255, 0.82);
-  font-size: clamp(17px, 1.7vw, 21px);
-  line-height: 1.48;
+  font-size: clamp(16px, 1.45vw, 20px);
+  line-height: 1.42;
 }
 
 .button {
@@ -308,10 +314,11 @@ h1 {
   display: grid;
   grid-template-rows: auto auto auto;
   gap: 12px;
+  height: var(--hero-panel-height);
   min-height: 430px;
   padding: clamp(18px, 3vw, 30px);
   background: var(--white);
-  align-self: start;
+  align-self: stretch;
 }
 
 .live-strip {
@@ -1932,7 +1939,7 @@ body.has-admin-modal {
 @media (max-width: 1120px) {
   .hero-copy,
   .broadcast-card {
-    min-height: auto;
+    min-height: 0;
   }
 
   .broadcast-card {
@@ -1958,6 +1965,7 @@ body.has-admin-modal {
 
   .hero-copy,
   .broadcast-card {
+    height: auto;
     min-height: auto;
   }
 
