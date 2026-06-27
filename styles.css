@@ -206,7 +206,7 @@ main {
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(370px, 0.85fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
   align-items: start;
 }
@@ -224,7 +224,7 @@ main {
   flex-direction: column;
   justify-content: center;
   min-height: 430px;
-  padding: clamp(28px, 4.8vw, 54px);
+  padding: clamp(26px, 3.6vw, 42px);
   color: var(--white);
   background: var(--navy);
 }
@@ -268,8 +268,8 @@ h1 {
 
 .hero-logo img {
   display: block;
-  width: min(100%, 620px);
-  max-height: 680px;
+  width: min(100%, 520px);
+  max-height: 560px;
   margin-inline: auto;
   object-fit: contain;
   border-radius: 8px;
@@ -1928,10 +1928,6 @@ body.has-admin-modal {
 }
 
 @media (max-width: 1120px) {
-  .hero {
-    grid-template-columns: 1fr;
-  }
-
   .hero-copy,
   .broadcast-card {
     min-height: auto;
@@ -1950,6 +1946,21 @@ body.has-admin-modal {
   .view-toggle,
   .clear-filters {
     grid-column: span 1;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-copy,
+  .broadcast-card {
+    min-height: auto;
+  }
+
+  .broadcast-card {
+    grid-template-rows: auto auto auto;
   }
 }
 
@@ -2101,6 +2112,11 @@ body.has-admin-modal {
 
   .hero-logo {
     margin-bottom: 22px;
+  }
+
+  .hero-logo img {
+    width: min(100%, 620px);
+    max-height: none;
   }
 
   .section-heading h2 {
