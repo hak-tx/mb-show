@@ -8,8 +8,8 @@ window.MB_SHOW_ANALYTICS = {
 };
 
 window.MB_SHOW_DIRECTORY = {
-  sponsorEndpoint: "/api/sponsors",
-  browserCacheMs: 60 * 60 * 1000,
+  sponsorEndpoint: "/api/sponsors?v=20260708",
+  browserCacheMs: 0,
 };
 
 window.MB_SHOW_SHOPIFY = {

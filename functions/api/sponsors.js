@@ -22,9 +22,6 @@ const SELECT_FIELDS = [
   "updated_at",
 ].join(",");
 
-const CACHE_TTL_SECONDS = 300;
-const CACHE_STALE_SECONDS = 86400;
-
 async function fetchSponsors() {
   const url = new URL(`${SUPABASE_URL}/rest/v1/sponsors`);
   url.searchParams.set("select", SELECT_FIELDS);
@@ -53,40 +50,23 @@ function jsonResponse(body, init = {}) {
   return Response.json(body, {
     ...init,
     headers: {
-      "Cache-Control": `public, max-age=${CACHE_TTL_SECONDS}, stale-while-revalidate=${CACHE_STALE_SECONDS}`,
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      "CDN-Cache-Control": "no-store",
+      "Pragma": "no-cache",
+      "Expires": "0",
       ...(init.headers || {}),
     },
   });
 }
 
-async function readCache(request) {
-  if (typeof caches === "undefined") return null;
-  return caches.default.match(request);
-}
-
-async function writeCache(context, request, response) {
-  if (typeof caches === "undefined" || !context.waitUntil) return;
-  context.waitUntil(caches.default.put(request, response.clone()).catch(() => {}));
-}
-
 export async function onRequestGet(context) {
-  const cacheRequest = new Request(context.request.url, {
-    method: "GET",
-    headers: { accept: "application/json" },
-  });
-
-  const cachedResponse = await readCache(cacheRequest);
-  if (cachedResponse) return cachedResponse;
-
   try {
     const sponsors = await fetchSponsors();
-    const response = jsonResponse({
+    return jsonResponse({
       generatedAt: new Date().toISOString(),
       count: sponsors.length,
       sponsors,
     });
-    await writeCache(context, cacheRequest, response);
-    return response;
   } catch (error) {
     return jsonResponse(
       {
@@ -95,9 +75,6 @@ export async function onRequestGet(context) {
       },
       {
         status: 502,
-        headers: {
-          "Cache-Control": "public, max-age=30, stale-while-revalidate=300",
-        },
       },
     );
   }

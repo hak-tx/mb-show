@@ -130,8 +130,8 @@
   let liveSponsorRows = null;
   let liveSponsorRowsPromise = null;
   let mobileSearchLocked = false;
-  const sponsorCacheKey = "mb-show-sponsor-directory-v3";
-  const sponsorCacheMs = Number(directoryConfig.browserCacheMs || 60 * 60 * 1000);
+  const sponsorCacheKey = "mb-show-sponsor-directory-v4";
+  const sponsorCacheMs = Number(directoryConfig.browserCacheMs ?? 60 * 60 * 1000);
 
   const directoryState = {
     query: "",
@@ -382,6 +382,7 @@
   async function fetchFromSponsorEndpoint() {
     const response = await fetch(sponsorEndpoint(), {
       method: "GET",
+      cache: "no-store",
       headers: { accept: "application/json" },
     });
 

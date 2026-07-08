@@ -50,9 +50,11 @@ async function fetchSponsors() {
 module.exports = async function handler(_request, response) {
   try {
     const sponsors = await fetchSponsors();
-    response.setHeader("Cache-Control", "max-age=0, must-revalidate");
-    response.setHeader("CDN-Cache-Control", "max-age=300, stale-while-revalidate=86400");
-    response.setHeader("Vercel-CDN-Cache-Control", "max-age=300, stale-while-revalidate=86400");
+    response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    response.setHeader("CDN-Cache-Control", "no-store");
+    response.setHeader("Vercel-CDN-Cache-Control", "no-store");
+    response.setHeader("Pragma", "no-cache");
+    response.setHeader("Expires", "0");
     response.setHeader("Content-Type", "application/json; charset=utf-8");
     response.status(200).json({
       generatedAt: new Date().toISOString(),
@@ -60,9 +62,11 @@ module.exports = async function handler(_request, response) {
       sponsors,
     });
   } catch (error) {
-    response.setHeader("Cache-Control", "max-age=0, must-revalidate");
-    response.setHeader("CDN-Cache-Control", "max-age=30, stale-while-revalidate=300");
-    response.setHeader("Vercel-CDN-Cache-Control", "max-age=30, stale-while-revalidate=300");
+    response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    response.setHeader("CDN-Cache-Control", "no-store");
+    response.setHeader("Vercel-CDN-Cache-Control", "no-store");
+    response.setHeader("Pragma", "no-cache");
+    response.setHeader("Expires", "0");
     response.status(502).json({
       error: "Unable to load sponsor directory.",
       detail: error.message,
