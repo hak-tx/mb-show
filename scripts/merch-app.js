@@ -32,9 +32,17 @@
       if (!response.ok) throw new Error(`New releases request failed: ${response.status}`);
 
       const data = await response.json();
-      const limit = Number(config.productLimit || 8);
+      const limit = Number(config.productLimit || 20);
       const products = Array.isArray(data.products) ? data.products.slice(0, limit) : [];
       if (!products.length) return;
+
+      // Keep the separately created Texas Redneck tee with its original release.
+      const teeIndex = products.findIndex((product) => product.handle === "texas-redneck-tri-blend-crew-tee");
+      const mugHandle = "texas-redneck-coffee-mug-11oz-or-15oz";
+      if (teeIndex !== -1 && products.some((product) => product.handle === mugHandle)) {
+        const [tee] = products.splice(teeIndex, 1);
+        products.splice(products.findIndex((product) => product.handle === mugHandle), 0, tee);
+      }
 
       grid.replaceChildren(...products.map(createProductCard));
     } catch (error) {

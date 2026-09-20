@@ -921,6 +921,18 @@ h1 {
   gap: 14px;
 }
 
+@media (min-width: 701px) and (max-width: 1120px) {
+  .product-grid .product-card:nth-child(n + 11) {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .product-grid .product-card:nth-child(n + 9) {
+    display: none;
+  }
+}
+
 .product-card {
   min-height: 388px;
   padding: 14px;

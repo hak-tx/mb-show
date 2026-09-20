@@ -44,7 +44,7 @@ function normalizeProduct(product, storeOrigin) {
 }
 
 async function fetchProducts(origin) {
-  const url = `${origin}/collections/new-releases/products.json?limit=24&sort_by=created-descending`;
+  const url = `${origin}/collections/new-releases/products.json?limit=24&sort_by=manual`;
   const response = await fetch(url, {
     headers: {
       accept: "application/json",
@@ -58,14 +58,7 @@ async function fetchProducts(origin) {
 
   const data = await response.json();
   const products = Array.isArray(data.products) ? data.products : [];
-  return products
-    .sort((a, b) => {
-      const aDate = Date.parse(a.created_at || a.published_at || 0);
-      const bDate = Date.parse(b.created_at || b.published_at || 0);
-      return bDate - aDate;
-    })
-    .slice(0, 8)
-    .map((product) => normalizeProduct(product, origin));
+  return products.slice(0, 20).map((product) => normalizeProduct(product, origin));
 }
 
 export async function onRequestGet() {
