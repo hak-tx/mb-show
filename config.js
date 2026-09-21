@@ -14,7 +14,7 @@ window.MB_SHOW_DIRECTORY = {
 
 window.MB_SHOW_SHOPIFY = {
   storeOrigin: "https://shop.michaelberryshow.com",
-  newReleasesEndpoint: "/api/new-releases-manual?v=20260920",
+  newReleasesEndpoint: "/api/new-releases-live?v=20260920",
   newReleasesUrl: "https://shop.michaelberryshow.com/collections/new-releases",
   productLimit: 20,
 };

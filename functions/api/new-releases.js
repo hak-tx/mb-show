@@ -3,6 +3,13 @@ const SHOPIFY_ORIGINS = [
   "https://michaelberry.myshopify.com",
 ];
 
+const PRODUCT_SUFFIXES = [
+  " - Tri-Blend Crew Tee",
+  " - Coffee Mug, 11oz or 15oz",
+  " - Can Cooler",
+  " - Round Sticker",
+];
+
 function toMoney(value) {
   const amount = Number(value);
   if (!Number.isFinite(amount)) return "";
@@ -44,7 +51,7 @@ function normalizeProduct(product, storeOrigin) {
 }
 
 async function fetchProducts(origin) {
-  const url = `${origin}/collections/new-releases/products.json?limit=24&sort_by=manual`;
+  const url = `${origin}/collections/new-releases/products.json?limit=250&sort_by=manual`;
   const response = await fetch(url, {
     headers: {
       accept: "application/json",
@@ -58,7 +65,26 @@ async function fetchProducts(origin) {
 
   const data = await response.json();
   const products = Array.isArray(data.products) ? data.products : [];
-  return products.slice(0, 20).map((product) => normalizeProduct(product, origin));
+  return newestMerchFirst(products).slice(0, 20).map((product) => normalizeProduct(product, origin));
+}
+
+function newestMerchFirst(products) {
+  const groups = new Map();
+  for (const product of products) {
+    const suffixIndex = PRODUCT_SUFFIXES.findIndex((suffix) => String(product.title || "").endsWith(suffix));
+    const key = suffixIndex < 0
+      ? `single:${product.id || product.handle}`
+      : String(product.title).slice(0, -PRODUCT_SUFFIXES[suffixIndex].length).trim().toLowerCase();
+    const createdAt = Date.parse(product.created_at || product.published_at || 0) || 0;
+    const group = groups.get(key) || { products: [], batchAt: createdAt };
+    group.products.push({ product, suffixIndex: suffixIndex < 0 ? PRODUCT_SUFFIXES.length : suffixIndex });
+    group.batchAt = Math.min(group.batchAt || createdAt, createdAt);
+    groups.set(key, group);
+  }
+
+  return [...groups.values()]
+    .sort((left, right) => right.batchAt - left.batchAt)
+    .flatMap((group) => group.products.sort((left, right) => left.suffixIndex - right.suffixIndex).map(({ product }) => product));
 }
 
 export async function onRequestGet() {
@@ -72,7 +98,7 @@ export async function onRequestGet() {
         },
         {
           headers: {
-            "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+            "Cache-Control": "public, s-maxage=30, stale-while-revalidate=30",
           },
         },
       );
